@@ -4,17 +4,9 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const url = request.nextUrl;
   const hostname = request.headers.get('host') || '';
+  const currentHost = hostname.split(':')[0]; // e.g. "localhost", "127.0.0.1", "shopdeck.in"
 
-  // Standard root domains
-  const rootDomains = ['localhost:3000', 'shopdeck.in', 'app.shopdeck.in', 'shopdeck.vercel.app'];
-
-  // Check if current host is a custom domain or subdomain (not root)
-  const isRootDomain = rootDomains.some(root => hostname === root || hostname.endsWith(`.${root}`));
-
-  // Extract subdomain if exists (e.g. "trendygadgets" from "trendygadgets.localhost:3000")
-  let currentHost = hostname.split(':')[0]; // Remove port if any
-
-  // If request is for static assets / Next.js internals / API endpoints, skip middleware rewrite
+  // If request is for static assets / Next.js internals / API endpoints, skip
   if (
     url.pathname.startsWith('/_next') ||
     url.pathname.startsWith('/api') ||
@@ -24,32 +16,38 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Handle Subdomain or Custom Domain Storefront Routing
-  if (!rootDomains.includes(currentHost)) {
-    // Extract subdomain if it's a subdomain of root (e.g. trendygadgets.shopdeck.in)
-    let domainIdentifier = currentHost;
-    if (currentHost.endsWith('.localhost')) {
-      domainIdentifier = currentHost.replace('.localhost', '');
-    } else if (currentHost.endsWith('.shopdeck.in')) {
-      domainIdentifier = currentHost.replace('.shopdeck.in', '');
-    }
+  // Check if current host is standard localhost or platform root domain
+  const isLocalOrRootHost = 
+    currentHost === 'localhost' || 
+    currentHost === '127.0.0.1' || 
+    currentHost === 'shopdeck.in' || 
+    currentHost === 'app.shopdeck.in' || 
+    currentHost.endsWith('.vercel.app');
 
-    // Rewrite to storefront dynamic route
-    return NextResponse.rewrite(new URL(`/store/${domainIdentifier}${url.pathname}`, request.url));
+  // If visiting dashboard, admin, or storefront routes directly, pass through
+  if (
+    isLocalOrRootHost || 
+    url.pathname === '/' || 
+    url.pathname.startsWith('/dashboard') || 
+    url.pathname.startsWith('/admin') || 
+    url.pathname.startsWith('/store')
+  ) {
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  // Handle Subdomain or Custom Domain Storefront Routing for dynamic stores
+  let domainIdentifier = currentHost;
+  if (currentHost.endsWith('.localhost')) {
+    domainIdentifier = currentHost.replace('.localhost', '');
+  } else if (currentHost.endsWith('.shopdeck.in')) {
+    domainIdentifier = currentHost.replace('.shopdeck.in', '');
+  }
+
+  return NextResponse.rewrite(new URL(`/store/${domainIdentifier}${url.pathname}`, request.url));
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
