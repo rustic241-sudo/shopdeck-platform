@@ -15,6 +15,12 @@ export const mockProfile: Profile = {
   city: 'Mumbai',
   state: 'Maharashtra',
   gstNumber: '27AAAAA0000A1Z5',
+  // Bank Payout Details
+  bankAccountHolder: 'Rahul Sharma',
+  bankName: 'HDFC Bank',
+  accountNumber: '50100293849182',
+  ifscCode: 'HDFC0001234',
+  upiId: 'rahulsharma@hdfcbank',
   createdAt: new Date().toISOString()
 };
 
