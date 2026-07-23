@@ -81,6 +81,14 @@ export default function DropshipperDashboard() {
   const [ifscCode, setIfscCode] = useState(profile.ifscCode || 'HDFC0001234');
   const [upiId, setUpiId] = useState(profile.upiId || 'rahulsharma@hdfcbank');
 
+  // Meta & Google Ads Wallet Balance State
+  const [adWalletBalance, setAdWalletBalance] = useState(5400);
+  const [customRechargeAmount, setCustomRechargeAmount] = useState(2500);
+  const [rechargeHistory, setRechargeHistory] = useState([
+    { id: 'tx_101', date: '2026-07-22', amount: 5000, method: 'UPI / PhonePe', status: 'SUCCESS' },
+    { id: 'tx_102', date: '2026-07-18', amount: 2500, method: 'Razorpay NetBanking', status: 'SUCCESS' }
+  ]);
+
   // Price Editing Modal State inside My Products
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newPrice, setNewPrice] = useState(0);
@@ -96,6 +104,21 @@ export default function DropshipperDashboard() {
   const showAlert = (msg: string) => {
     setAlertMsg(msg);
     setTimeout(() => setAlertMsg(null), 4000);
+  };
+
+  // Handle Recharge Ads Wallet
+  const handleAddMoneyToAdsWallet = (amountToAdd: number) => {
+    if (amountToAdd <= 0) return;
+    setAdWalletBalance(prev => prev + amountToAdd);
+    const newTx = {
+      id: `tx_${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      amount: amountToAdd,
+      method: 'Instant UPI / Razorpay',
+      status: 'SUCCESS'
+    };
+    setRechargeHistory(prev => [newTx, ...prev]);
+    showAlert(`₹${amountToAdd.toLocaleString()} added to your Meta & Google Ads Wallet successfully! 🚀`);
   };
 
   // Toggle approval status for demonstration
@@ -590,15 +613,112 @@ export default function DropshipperDashboard() {
           </div>
         )}
 
-        {/* TAB 5: META & GOOGLE ADS ENGINE */}
+        {/* TAB 5: META & GOOGLE ADS ENGINE & WALLET RECHARGE */}
         {activeTab === 'ads' && (
           <div className="space-y-8">
+            {/* 1. ADS WALLET BALANCE & RECHARGE CARD */}
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white shadow-xl space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-indigo-800/60 pb-5">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-600/40 text-white flex items-center justify-center font-bold">
+                    <Wallet className="w-6 h-6 text-amber-300" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-extrabold text-indigo-300 uppercase tracking-wider">Meta & Google Ads Wallet Balance</div>
+                    <div className="text-3xl sm:text-4xl font-black text-emerald-400 mt-0.5 font-mono">
+                      ₹{adWalletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Ad Budget Active</span>
+                </div>
+              </div>
+
+              {/* Add Money Form & Quick Buttons */}
+              <div className="space-y-4">
+                <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Quick Deposit / Add Funds To Ads Wallet</div>
+                
+                <div className="flex flex-wrap gap-3">
+                  {[1000, 2500, 5000, 10000].map(amt => (
+                    <button
+                      key={amt}
+                      onClick={() => handleAddMoneyToAdsWallet(amt)}
+                      className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs border border-white/10 transition-all flex items-center space-x-1.5"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-amber-300" />
+                      <span>+ ₹{amt.toLocaleString()}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom Amount Form */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                  <div className="relative flex-1 w-full">
+                    <span className="absolute left-4 top-3 text-slate-400 font-bold text-sm">₹</span>
+                    <input
+                      type="number"
+                      value={customRechargeAmount}
+                      onChange={e => setCustomRechargeAmount(Number(e.target.value))}
+                      className="w-full pl-9 pr-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 text-white font-bold text-sm outline-none focus:border-indigo-500"
+                      placeholder="Enter custom recharge amount"
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => handleAddMoneyToAdsWallet(customRechargeAmount)}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-extrabold text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition-all"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>Recharge Ads Wallet via UPI / Razorpay</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. RECHARGE TRANSACTION HISTORY */}
+            <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md">
+              <h3 className="text-lg font-extrabold text-slate-900 mb-4">Ads Wallet Deposit & Recharge History</h3>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-100 text-slate-600 uppercase text-[11px] font-bold tracking-wider">
+                    <tr>
+                      <th className="p-3.5 rounded-l-xl">Transaction ID</th>
+                      <th className="p-3.5">Date</th>
+                      <th className="p-3.5">Payment Method</th>
+                      <th className="p-3.5">Amount Added</th>
+                      <th className="p-3.5 rounded-r-xl">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 text-slate-700 text-xs">
+                    {rechargeHistory.map(tx => (
+                      <tr key={tx.id} className="hover:bg-slate-50">
+                        <td className="p-3.5 font-mono font-bold text-indigo-600">{tx.id}</td>
+                        <td className="p-3.5 text-slate-500">{tx.date}</td>
+                        <td className="p-3.5 font-medium">{tx.method}</td>
+                        <td className="p-3.5 font-black text-emerald-600">₹{tx.amount.toLocaleString()}</td>
+                        <td className="p-3.5">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            {tx.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 3. CAMPAIGNS PERFORMANCE */}
             <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md space-y-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
                     <Megaphone className="w-5 h-5 text-indigo-600" />
-                    <span>Meta (FB/Insta) & Google Ads Engine</span>
+                    <span>Meta (FB/Insta) & Google Ads Performance</span>
                   </h3>
                   <p className="text-xs text-slate-500">Track and manage high-converting ad campaigns run across Meta and Google Shopping.</p>
                 </div>
