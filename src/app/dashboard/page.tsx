@@ -49,7 +49,8 @@ import {
   CreditCard,
   Trash2,
   Edit3,
-  SlidersHorizontal
+  Building,
+  Landmark
 } from 'lucide-react';
 
 export default function DropshipperDashboard() {
@@ -69,8 +70,14 @@ export default function DropshipperDashboard() {
   const [razorpayKey, setRazorpayKey] = useState(store.razorpayKeyId || 'rzp_live_123456789');
   const [phonepeMerchantId, setPhonepeMerchantId] = useState('M1092837465');
   const [paytmMerchantId, setPaytmMerchantId] = useState('PAYTM_MID_9018');
-  const [cashfreeAppId, setCashfreeAppId] = useState('CF_APP_901827');
   const [upiQrVpa, setUpiQrVpa] = useState('merchant360@upi');
+
+  // Merchant Bank Payout Details State
+  const [bankHolder, setBankHolder] = useState(profile.bankAccountHolder || 'Rahul Sharma');
+  const [bankName, setBankName] = useState(profile.bankName || 'HDFC Bank');
+  const [accountNumber, setAccountNumber] = useState(profile.accountNumber || '50100293849182');
+  const [ifscCode, setIfscCode] = useState(profile.ifscCode || 'HDFC0001234');
+  const [upiId, setUpiId] = useState(profile.upiId || 'rahulsharma@hdfcbank');
 
   // Price Editing Modal State inside My Products
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -125,6 +132,20 @@ export default function DropshipperDashboard() {
     showAlert('Retail price updated successfully on live storefront!');
   };
 
+  // Handle Save Bank Payout Details
+  const handleSaveBankDetails = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfile(prev => ({
+      ...prev,
+      bankAccountHolder: bankHolder,
+      bankName: bankName,
+      accountNumber: accountNumber,
+      ifscCode: ifscCode,
+      upiId: upiId
+    }));
+    showAlert('Merchant Bank Account Payout Details updated & verified!');
+  };
+
   // Handle Remove Product from My Products
   const handleRemoveProduct = (id: string) => {
     setMyProducts(prev => prev.filter(p => p.id !== id));
@@ -146,7 +167,7 @@ export default function DropshipperDashboard() {
 
   const isApproved = profile.approvalStatus === 'APPROVED';
 
-  // Navigation Menu Items
+  // Clean Navigation Menu Items
   const menuItems = [
     { id: 'overview', label: 'Overview & Orders', icon: ShoppingBag, badge: 'Live' },
     { id: 'catalog', label: 'All Products', icon: Layers, badge: '5,000+' },
@@ -154,8 +175,8 @@ export default function DropshipperDashboard() {
     { id: 'customization', label: 'Store Theme & Styling', icon: Palette },
     { id: 'ads', label: 'Meta Ads Manager', icon: TrendingUp },
     { id: 'analytics', label: 'Google Analytics & AI', icon: BarChart3 },
-    { id: 'commission', label: '5% Commission Ledger', icon: Percent, badge: '5%' },
-    { id: 'settings', label: 'Payment Gateway & Settings', icon: CreditCard }
+    { id: 'commission', label: 'Payouts & Ledger', icon: Percent },
+    { id: 'settings', label: 'Payment Gateway & Bank', icon: CreditCard }
   ];
 
   return (
@@ -179,26 +200,26 @@ export default function DropshipperDashboard() {
         </button>
       </div>
 
-      {/* 1. VERTICAL SIDEBAR MENU */}
+      {/* 1. SCROLLABLE VERTICAL SIDEBAR MENU */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-slate-900/90 backdrop-blur-2xl border-r border-slate-800/80 p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out
+        fixed lg:sticky top-0 left-0 z-40 h-screen max-h-screen overflow-y-auto w-72 bg-slate-900/90 backdrop-blur-2xl border-r border-slate-800/80 p-5 flex flex-col justify-between transition-transform duration-300 ease-in-out scrollbar-thin scrollbar-thumb-slate-800
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="space-y-6">
-          <div className="flex items-center space-x-3 border-b border-slate-800/80 pb-5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-500/30">
+        <div className="space-y-5">
+          <div className="flex items-center space-x-3 border-b border-slate-800/80 pb-4">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-indigo-500/30">
               360
             </div>
             <div>
               <h1 className="font-extrabold text-base text-white tracking-tight">360 Dropship</h1>
-              <p className="text-[11px] text-indigo-400 font-bold">Merchant OS Panel</p>
+              <p className="text-[10px] text-indigo-400 font-bold">Merchant OS Panel</p>
             </div>
           </div>
 
           {/* Account Status Card */}
           <div 
             onClick={toggleApprovalStatus}
-            className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
+            className={`p-3 rounded-2xl border cursor-pointer transition-all ${
               isApproved 
                 ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' 
                 : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
@@ -206,10 +227,10 @@ export default function DropshipperDashboard() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                {isApproved ? <UserCheck className="w-4 h-4 text-emerald-400" /> : <Clock className="w-4 h-4 text-amber-400 animate-spin" />}
+                {isApproved ? <UserCheck className="w-3.5 h-3.5 text-emerald-400" /> : <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" />}
                 <span className="text-[10px] uppercase font-bold tracking-wider">Account Status</span>
               </div>
-              <span className="text-[9px] font-black underline">Click to Toggle</span>
+              <span className="text-[9px] font-black underline">Toggle</span>
             </div>
             <div className="font-extrabold text-xs text-white mt-1">
               {isApproved ? 'APPROVED (ACTIVE) ✅' : 'PENDING APPROVAL ⏳'}
@@ -217,8 +238,8 @@ export default function DropshipperDashboard() {
           </div>
 
           {/* Vertical Navigation Menu */}
-          <nav className="space-y-1.5">
-            <div className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider px-3 mb-2">Navigation Menu</div>
+          <nav className="space-y-1">
+            <div className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider px-3 mb-1.5">Navigation Menu</div>
             {menuItems.map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -229,13 +250,13 @@ export default function DropshipperDashboard() {
                     setActiveTab(item.id as any);
                     setSidebarOpen(false);
                   }}
-                  className={`w-full px-3.5 py-3 rounded-2xl font-bold text-xs flex items-center justify-between transition-all ${
+                  className={`w-full px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between transition-all ${
                     isActive 
                       ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 scale-[1.02]' 
                       : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2.5">
                     <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                     <span>{item.label}</span>
                   </div>
@@ -253,22 +274,22 @@ export default function DropshipperDashboard() {
         </div>
 
         {/* Sidebar Footer Actions */}
-        <div className="space-y-3 pt-4 border-t border-slate-800/80">
+        <div className="space-y-2.5 pt-4 border-t border-slate-800/80 mt-6">
           <a
             href={`/store/${store.subdomain}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3 rounded-2xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-bold text-xs border border-indigo-500/30 flex items-center justify-center space-x-2 transition-all"
+            className="w-full py-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-bold text-xs border border-indigo-500/30 flex items-center justify-center space-x-2 transition-all"
           >
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="w-3.5 h-3.5" />
             <span>View Live Storefront</span>
           </a>
 
           <Link
             href="/"
-            className="w-full py-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-semibold border border-slate-800 flex items-center justify-center space-x-2 transition-all"
+            className="w-full py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-semibold border border-slate-800 flex items-center justify-center space-x-2 transition-all"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-3.5 h-3.5" />
             <span>Logout Portal</span>
           </Link>
         </div>
@@ -313,11 +334,11 @@ export default function DropshipperDashboard() {
 
           <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
             <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
-              <span>5% Delivered Commission</span>
+              <span>Total Delivered Fees</span>
               <Percent className="w-5 h-5 text-emerald-400" />
             </div>
             <div className="text-2xl font-black text-emerald-400">₹74.95</div>
-            <div className="text-xs text-slate-400 mt-2">Deducted ONLY on delivered COD</div>
+            <div className="text-xs text-slate-400 mt-2">5% Fee on Delivered COD</div>
           </div>
 
           <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
@@ -694,18 +715,36 @@ export default function DropshipperDashboard() {
           </div>
         )}
 
-        {/* TAB 7: 5% COMMISSION LEDGER */}
+        {/* TAB 7: PAYOUTS & COMMISSION LEDGER */}
         {activeTab === 'commission' && (
           <div className="space-y-8">
+            {/* Merchant Registered Payout Bank Card */}
+            <div className="p-6 rounded-3xl bg-indigo-950/60 border border-indigo-500/40 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600/30 text-indigo-400 flex items-center justify-center">
+                  <Landmark className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-indigo-300 uppercase">Registered Profit Payout Account</div>
+                  <h4 className="text-lg font-black text-white mt-0.5">{bankName} ({bankHolder})</h4>
+                  <p className="text-xs text-slate-300 font-mono">A/C: {accountNumber} • IFSC: {ifscCode} • UPI: {upiId}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setActiveTab('settings')}
+                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30"
+              >
+                Update Bank Account
+              </button>
+            </div>
+
             <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-extrabold text-white">5% Commission Ledger (Delivered Orders Only)</h3>
-                  <p className="text-xs text-slate-400">Commission is charged strictly on successfully delivered orders. Returned / RTO orders incur 0% commission.</p>
+                  <h3 className="text-lg font-extrabold text-white">Merchant Profit Payout & Commission Ledger</h3>
+                  <p className="text-xs text-slate-400">All net profit payouts are credited to your registered bank account on a daily cycle.</p>
                 </div>
-                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-full">
-                  5% Delivered Fee Policy
-                </span>
               </div>
 
               <div className="overflow-x-auto">
@@ -714,9 +753,9 @@ export default function DropshipperDashboard() {
                     <tr>
                       <th className="p-4 rounded-l-xl">Order Number</th>
                       <th className="p-4">Order Amount</th>
-                      <th className="p-4">Commission (5%)</th>
-                      <th className="p-4">Merchant Profit Payout</th>
-                      <th className="p-4 rounded-r-xl">Status</th>
+                      <th className="p-4">5% Commission</th>
+                      <th className="p-4 font-bold text-emerald-400">Net Profit Payout Sent</th>
+                      <th className="p-4 rounded-r-xl">Payout Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800 text-slate-200">
@@ -724,11 +763,11 @@ export default function DropshipperDashboard() {
                       <tr key={comm.id} className="hover:bg-slate-800/40">
                         <td className="p-4 font-mono font-bold text-indigo-400">{comm.orderNumber}</td>
                         <td className="p-4 font-bold text-white">₹{comm.totalOrderAmount.toFixed(2)}</td>
-                        <td className="p-4 font-black text-emerald-400">₹{comm.commissionCharged.toFixed(2)}</td>
-                        <td className="p-4 font-bold text-indigo-300">₹{comm.merchantProfitPayout.toFixed(2)}</td>
+                        <td className="p-4 font-bold text-amber-400">₹{comm.commissionCharged.toFixed(2)}</td>
+                        <td className="p-4 font-black text-emerald-400 text-base">₹{comm.merchantProfitPayout.toFixed(2)}</td>
                         <td className="p-4">
                           <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            {comm.status}
+                            {comm.status} (Bank Transfer)
                           </span>
                         </td>
                       </tr>
@@ -740,9 +779,96 @@ export default function DropshipperDashboard() {
           </div>
         )}
 
-        {/* TAB 8: PAYMENT GATEWAY & STORE SETTINGS */}
+        {/* TAB 8: PAYMENT GATEWAY & MERCHANT BANK SETTINGS */}
         {activeTab === 'settings' && (
           <div className="space-y-8">
+            {/* Merchant Bank Payout Details Card */}
+            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6">
+              <div className="flex items-center space-x-3 border-b border-slate-800 pb-4">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <Landmark className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-white">Merchant Bank Account for Profit Payouts</h3>
+                  <p className="text-xs text-slate-400">Your order profit money will be remitted directly into this bank account.</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveBankDetails} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-slate-400 font-bold uppercase">Account Holder Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={bankHolder}
+                      onChange={e => setBankHolder(e.target.value)}
+                      className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs"
+                      placeholder="Rahul Sharma"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-slate-400 font-bold uppercase">Bank Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={bankName}
+                      onChange={e => setBankName(e.target.value)}
+                      className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs"
+                      placeholder="HDFC Bank / ICICI Bank / SBI"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs text-slate-400 font-bold uppercase">Bank Account Number *</label>
+                    <input
+                      type="text"
+                      required
+                      value={accountNumber}
+                      onChange={e => setAccountNumber(e.target.value)}
+                      className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono text-xs"
+                      placeholder="50100293849182"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-slate-400 font-bold uppercase">IFSC Code *</label>
+                    <input
+                      type="text"
+                      required
+                      value={ifscCode}
+                      onChange={e => setIfscCode(e.target.value)}
+                      className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono text-xs uppercase"
+                      placeholder="HDFC0001234"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-slate-400 font-bold uppercase">Merchant UPI ID / VPA *</label>
+                    <input
+                      type="text"
+                      required
+                      value={upiId}
+                      onChange={e => setUpiId(e.target.value)}
+                      className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono text-xs"
+                      placeholder="rahulsharma@upi"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/30 flex items-center space-x-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Save Merchant Payout Bank Details</span>
+                </button>
+              </form>
+            </div>
+
             {/* Payment Gateway Configurations */}
             <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6">
               <div>
