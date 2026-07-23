@@ -338,14 +338,57 @@ export default function SuperAdminDashboard() {
                 <div className="text-[10px] text-slate-400 uppercase font-bold">Net Profit Settlement Payout</div>
                 <div className="text-xl font-black text-emerald-600">₹925.05</div>
               </div>
-              <button
-                onClick={() => alert('Payout of ₹925.05 transferred via IMPS/NEFT to HDFC Bank A/C 50100293849182!')}
-                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/20"
-              >
-                Send Bank Transfer Payout
-              </button>
+        </div>
+
+        {/* SECTION: SUPER ADMIN GLOBAL PAYMENT GATEWAY SETTINGS */}
+        <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+            <div>
+              <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-purple-600" />
+                <span>Super Admin Payment Gateway Credentials & UPI VPA</span>
+              </h3>
+              <p className="text-xs text-slate-500">Configure global payment gateway credentials and receiver UPI addresses for merchant ad wallet recharges.</p>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-300 text-xs font-bold">
+              SUPER ADMIN ONLY 🛡️
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="text-xs text-slate-500 font-bold uppercase">Razorpay Live Key ID</label>
+              <input
+                type="text"
+                defaultValue="rzp_live_9021839281"
+                className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 font-bold uppercase">PhonePe Merchant ID (MID)</label>
+              <input
+                type="text"
+                defaultValue="M1092837465"
+                className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 font-bold uppercase">Platform Receiver UPI VPA</label>
+              <input
+                type="text"
+                defaultValue="merchant360@upi"
+                className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono text-xs"
+              />
             </div>
           </div>
+
+          <button
+            onClick={() => showAlert('Super Admin Payment Gateway Credentials saved & live across platform!')}
+            className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs shadow-lg shadow-purple-600/20 flex items-center space-x-2"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Save Global Payment Gateway Keys</span>
+          </button>
         </div>
 
         {/* SECTION 3: MASTER CATALOG MANAGEMENT */}
