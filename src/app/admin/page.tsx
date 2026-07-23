@@ -67,10 +67,14 @@ export default function SuperAdminDashboard() {
   const [newCategory, setNewCategory] = useState('Electronics');
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Excel / CSV Bulk Product Upload State for Super Admin
+  // Excel / CSV Bulk Product Upload State for Super Admin (High-Performance Large File Parser)
   const [showExcelUploadModal, setShowExcelUploadModal] = useState(false);
   const [parsedExcelProducts, setParsedExcelProducts] = useState<any[]>([]);
   const [uploadingExcel, setUploadingExcel] = useState(false);
+  const [parsingProgress, setParsingProgress] = useState<number | null>(null);
+  const [totalRowsToParse, setTotalRowsToParse] = useState<number>(0);
+  const [parsedRowsCount, setParsedRowsCount] = useState<number>(0);
+  const [previewPage, setPreviewPage] = useState<number>(1);
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
 
   const showAlert = (msg: string) => {
@@ -78,27 +82,54 @@ export default function SuperAdminDashboard() {
     setTimeout(() => setAlertMsg(null), 4000);
   };
 
-  // Handle CSV File Upload & Parsing (Supports both Shopify CSV Export & Standard CSV)
+  // Fast non-backtracking CSV line splitter
+  const splitCsvLine = (line: string): string[] => {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim().replace(/^"|"$/g, ''));
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim().replace(/^"|"$/g, ''));
+    return result;
+  };
+
+  // Handle Large CSV/Excel File Upload with Async Batch Chunking (Supports up to 100,000+ rows)
   const handleCsvFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setParsingProgress(0);
+    setParsedRowsCount(0);
+    setPreviewPage(1);
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
-      if (!text) return;
+      if (!text) {
+        setParsingProgress(null);
+        return;
+      }
 
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
       if (lines.length <= 1) {
         showAlert('CSV file is empty or missing data rows.');
+        setParsingProgress(null);
         return;
       }
 
       // Parse Header
       const headerLine = lines[0];
-      const headers = headerLine.split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+      const headers = splitCsvLine(headerLine).map(h => h.toLowerCase());
 
-      // Helper to find column index by list of possible header names
       const findColIdx = (possibleNames: string[], defaultIdx: number) => {
         const found = headers.findIndex(h => possibleNames.some(name => h === name.toLowerCase()));
         return found !== -1 ? found : defaultIdx;
@@ -113,40 +144,59 @@ export default function SuperAdminDashboard() {
       const descIdx = findColIdx(['body (html)', 'description', 'body'], 2);
 
       const isShopifyFormat = headers.includes('handle') || headers.includes('variant price') || headers.includes('image src');
-
-      // Skip Header Row
       const rows = lines.slice(1);
-      const parsed = rows.map((row, idx) => {
-        const cols = row.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
-        
-        const title = cols[titleIdx] || `Master Product #${idx + 1}`;
-        const category = cols[categoryIdx] || 'Electronics';
-        const rawCost = cols[costIdx] ? parseFloat(cols[costIdx].replace(/[^0-9.]/g, '')) : NaN;
-        const rawPrice = cols[priceIdx] ? parseFloat(cols[priceIdx].replace(/[^0-9.]/g, '')) : NaN;
-        
-        const defaultPrice = !isNaN(rawPrice) && rawPrice > 0 ? rawPrice : 1499;
-        const costPrice = !isNaN(rawCost) && rawCost > 0 ? rawCost : 499;
-        const sku = cols[skuIdx] || `SKU-360-${100 + idx}`;
-        const image = cols[imageIdx] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80';
-        const description = cols[descIdx]?.replace(/<[^>]*>?/gm, '') || 'High quality factory wholesale product added to master catalog.';
+      const total = rows.length;
+      setTotalRowsToParse(total);
 
-        return {
-          id: `mc_excel_${Date.now()}_${idx}`,
-          title,
-          category,
-          costPrice,
-          defaultPrice,
-          sku,
-          images: [image],
-          description,
-          inventory: 5000,
-          isStarter: true,
-          createdAt: new Date().toISOString()
-        };
-      });
+      const accumulatedProducts: any[] = [];
+      const BATCH_SIZE = 500;
+      let currentIndex = 0;
 
-      setParsedExcelProducts(parsed);
-      showAlert(`🎉 Auto-Detected ${isShopifyFormat ? 'Shopify Export CSV' : 'Standard Excel/CSV'} Format! Parsed ${parsed.length} products!`);
+      const processBatch = () => {
+        const end = Math.min(currentIndex + BATCH_SIZE, total);
+        for (let i = currentIndex; i < end; i++) {
+          const cols = splitCsvLine(rows[i]);
+          const title = cols[titleIdx] || `Master Product #${i + 1}`;
+          const category = cols[categoryIdx] || 'Electronics';
+          const rawCost = cols[costIdx] ? parseFloat(cols[costIdx].replace(/[^0-9.]/g, '')) : NaN;
+          const rawPrice = cols[priceIdx] ? parseFloat(cols[priceIdx].replace(/[^0-9.]/g, '')) : NaN;
+          
+          const defaultPrice = !isNaN(rawPrice) && rawPrice > 0 ? rawPrice : 1499;
+          const costPrice = !isNaN(rawCost) && rawCost > 0 ? rawCost : 499;
+          const sku = cols[skuIdx] || `SKU-360-${100 + i}`;
+          const image = cols[imageIdx] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80';
+          const description = cols[descIdx]?.replace(/<[^>]*>?/gm, '') || 'High quality factory wholesale product added to master catalog.';
+
+          accumulatedProducts.push({
+            id: `mc_excel_${Date.now()}_${i}`,
+            title,
+            category,
+            costPrice,
+            defaultPrice,
+            sku,
+            images: [image],
+            description,
+            inventory: 5000,
+            isStarter: true,
+            createdAt: new Date().toISOString()
+          });
+        }
+
+        currentIndex = end;
+        setParsedRowsCount(currentIndex);
+        const percent = Math.round((currentIndex / total) * 100);
+        setParsingProgress(percent);
+
+        if (currentIndex < total) {
+          setTimeout(processBatch, 0);
+        } else {
+          setParsedExcelProducts(accumulatedProducts);
+          setParsingProgress(null);
+          showAlert(`🎉 Successfully parsed ${accumulatedProducts.length.toLocaleString()} products from large ${isShopifyFormat ? 'Shopify Export CSV' : 'Excel/CSV'} file!`);
+        }
+      };
+
+      processBatch();
     };
     reader.readAsText(file);
   };
@@ -570,14 +620,36 @@ export default function SuperAdminDashboard() {
               </div>
             </div>
 
-            {/* Step 3: Parsed Products Preview Table */}
+            {/* Real-time Progress Bar for Large Files */}
+            {parsingProgress !== null && (
+              <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 space-y-2">
+                <div className="flex items-center justify-between text-xs font-extrabold text-indigo-900">
+                  <span className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-indigo-600 animate-spin" />
+                    <span>Parsing Large Excel/CSV File ({parsedRowsCount.toLocaleString()} / {totalRowsToParse.toLocaleString()} Rows)...</span>
+                  </span>
+                  <span className="font-mono text-indigo-600 font-bold">{parsingProgress}%</span>
+                </div>
+                <div className="w-full bg-indigo-200 h-3 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-indigo-600 h-full transition-all duration-150 rounded-full"
+                    style={{ width: `${parsingProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Parsed Products Preview Table with Pagination */}
             {parsedExcelProducts.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-slate-900 uppercase">Parsed Products ({parsedExcelProducts.length} Items Found)</span>
+                  <span className="text-xs font-extrabold text-slate-900 uppercase">
+                    Parsed Products ({parsedExcelProducts.length.toLocaleString()} Items Found)
+                  </span>
                   <span className="text-[11px] text-emerald-600 font-bold">Ready to Upload to Master Catalog ✅</span>
                 </div>
 
+                {/* Paginated Table View (20 items per page for performance) */}
                 <div className="max-h-60 overflow-y-auto border border-slate-200 rounded-2xl">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-slate-100 text-slate-600 uppercase font-bold text-[10px] sticky top-0">
@@ -590,7 +662,7 @@ export default function SuperAdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
-                      {parsedExcelProducts.map(p => (
+                      {parsedExcelProducts.slice((previewPage - 1) * 20, previewPage * 20).map(p => (
                         <tr key={p.id} className="hover:bg-slate-50">
                           <td className="p-3 font-bold text-slate-900">{p.title}</td>
                           <td className="p-3 text-slate-500">{p.category}</td>
@@ -602,6 +674,33 @@ export default function SuperAdminDashboard() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Table Pagination Controls */}
+                {parsedExcelProducts.length > 20 && (
+                  <div className="flex items-center justify-between pt-1 px-1">
+                    <div className="text-[11px] text-slate-500 font-medium">
+                      Showing Page <span className="font-bold text-slate-900">{previewPage}</span> of <span className="font-bold text-slate-900">{Math.ceil(parsedExcelProducts.length / 20)}</span> ({parsedExcelProducts.length.toLocaleString()} Total Items)
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        disabled={previewPage === 1}
+                        onClick={() => setPreviewPage(prev => Math.max(1, prev - 1))}
+                        className="px-3 py-1 rounded-lg bg-slate-100 disabled:opacity-40 text-slate-700 text-xs font-bold"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        type="button"
+                        disabled={previewPage >= Math.ceil(parsedExcelProducts.length / 20)}
+                        onClick={() => setPreviewPage(prev => prev + 1)}
+                        className="px-3 py-1 rounded-lg bg-slate-100 disabled:opacity-40 text-slate-700 text-xs font-bold"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   disabled={uploadingExcel}
@@ -616,7 +715,7 @@ export default function SuperAdminDashboard() {
                   ) : (
                     <>
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Upload & Commit {parsedExcelProducts.length} Products to Master Catalog</span>
+                      <span>Upload & Commit {parsedExcelProducts.length.toLocaleString()} Products to Master Catalog</span>
                     </>
                   )}
                 </button>
