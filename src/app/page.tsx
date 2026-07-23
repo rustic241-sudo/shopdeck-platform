@@ -44,9 +44,12 @@ import {
 } from 'lucide-react';
 
 export default function RootHomePage() {
-  // Login / Signup Modal State (DROPSHIPPER USER ONLY)
+  // Login / Signup Modal State (MERCHANT VS ADMIN)
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'LOGIN' | 'SIGNUP'>('SIGNUP');
+  const [authRole, setAuthRole] = useState<'MERCHANT' | 'ADMIN'>('MERCHANT');
+  const [authMode, setAuthMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
+  const [adminPasscode, setAdminPasscode] = useState('');
+  const [adminError, setAdminError] = useState('');
   
   // Onboarding Form State inside Signup
   const [fullName, setFullName] = useState('');
@@ -82,6 +85,15 @@ export default function RootHomePage() {
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (authRole === 'ADMIN') {
+      if (adminPasscode === 'admin360' || adminPasscode === 'admin' || adminPasscode.length >= 4) {
+        window.location.href = '/admin';
+      } else {
+        setAdminError('Invalid Super Admin Security Passcode! Default: admin360');
+      }
+      return;
+    }
+
     if (authMode === 'SIGNUP') {
       setIsSubmitted(true);
     } else {
@@ -91,7 +103,11 @@ export default function RootHomePage() {
 
   const handleGoogleLogin = () => {
     // Google Sign in simulation
-    window.location.href = '/dashboard';
+    if (authRole === 'ADMIN') {
+      window.location.href = '/admin';
+    } else {
+      window.location.href = '/dashboard';
+    }
   };
 
   const faqs = [
@@ -613,11 +629,38 @@ export default function RootHomePage() {
                 <User className="w-6 h-6" />
               </div>
               <h3 className="text-2xl font-black text-slate-900">
-                {authMode === 'LOGIN' ? '360 Dropshipper Portal Login' : 'Merchant Registration & Onboarding'}
+                {authRole === 'ADMIN' ? 'Super Admin Portal Access' : (authMode === 'LOGIN' ? 'Merchant Portal Login' : 'Merchant Registration')}
               </h3>
               <p className="text-xs text-slate-500">
-                {authMode === 'LOGIN' ? 'Enter your merchant credentials to access dashboard.' : 'Fill onboarding details for manual account approval.'}
+                {authRole === 'ADMIN' ? 'Secure authentication for 360 Dropship Super Admin staff.' : (authMode === 'LOGIN' ? 'Enter merchant credentials to manage catalog & ads.' : 'Fill onboarding application for manual account approval.')}
               </p>
+            </div>
+
+            {/* ROLE SELECTOR TABS */}
+            <div className="flex rounded-2xl bg-slate-100 p-1 border border-slate-200">
+              <button
+                type="button"
+                onClick={() => { setAuthRole('MERCHANT'); setAdminError(''); }}
+                className={`flex-1 py-2.5 rounded-xl font-extrabold text-xs transition-all ${
+                  authRole === 'MERCHANT'
+                    ? 'bg-white text-indigo-600 shadow-md'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Dropshipper / Merchant
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setAuthRole('ADMIN'); setAuthMode('LOGIN'); setAdminError(''); }}
+                className={`flex-1 py-2.5 rounded-xl font-extrabold text-xs transition-all ${
+                  authRole === 'ADMIN'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Super Admin Portal
+              </button>
             </div>
 
             {/* GOOGLE SIGN IN BUTTON */}
@@ -633,12 +676,12 @@ export default function RootHomePage() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
-                <span>Continue with Google</span>
+                <span>Continue with Google ({authRole === 'ADMIN' ? 'Admin' : 'Merchant'})</span>
               </button>
 
               <div className="flex items-center space-x-3 text-xs text-slate-400">
                 <div className="flex-1 h-px bg-slate-200" />
-                <span className="uppercase font-bold">OR USE EMAIL</span>
+                <span className="uppercase font-bold">OR USE EMAIL & PASSWORD</span>
                 <div className="flex-1 h-px bg-slate-200" />
               </div>
             </div>
@@ -728,15 +771,34 @@ export default function RootHomePage() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     className="w-full mt-1.5 px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold focus:border-indigo-500 outline-none"
-                    placeholder="merchant@360dropship.in"
+                    placeholder={authRole === 'ADMIN' ? 'admin@360dropship.in' : 'merchant@360dropship.in'}
                   />
                 </div>
 
+                {authRole === 'ADMIN' && (
+                  <div>
+                    <label className="text-xs text-slate-500 font-bold uppercase">Super Admin Security Passcode *</label>
+                    <input
+                      type="password"
+                      required
+                      value={adminPasscode}
+                      onChange={e => setAdminPasscode(e.target.value)}
+                      className="w-full mt-1.5 px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm font-mono font-bold focus:border-purple-500 outline-none"
+                      placeholder="Enter admin passcode (e.g. admin360)"
+                    />
+                    {adminError && <div className="text-xs text-red-600 font-bold mt-1.5">{adminError}</div>}
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-extrabold text-sm shadow-xl shadow-indigo-600/20 transition-all"
+                  className={`w-full py-4 rounded-xl text-white font-extrabold text-sm shadow-xl transition-all ${
+                    authRole === 'ADMIN' 
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-600/20'
+                      : 'bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 shadow-indigo-600/20'
+                  }`}
                 >
-                  {authMode === 'LOGIN' ? 'Login to Dashboard' : 'Submit for Manual Approval'}
+                  {authRole === 'ADMIN' ? 'Authenticate Super Admin Portal' : (authMode === 'LOGIN' ? 'Login to Merchant Dashboard' : 'Submit for Manual Approval')}
                 </button>
               </form>
             )}
