@@ -2,16 +2,59 @@
 
 import React, { useState } from 'react';
 import { mockMasterCatalog, mockProfile, mockStore, mockOrders } from '@/lib/mockData';
-import { MasterCatalogProduct } from '@/lib/types';
-import { ShieldCheck, Plus, Package, Users, DollarSign, Layers, CheckCircle2, TrendingUp, Sparkles } from 'lucide-react';
+import { MasterCatalogProduct, Profile } from '@/lib/types';
+import { ShieldCheck, Plus, Package, Users, DollarSign, Layers, CheckCircle2, TrendingUp, Sparkles, Clock, Check, X } from 'lucide-react';
 
 export default function SuperAdminDashboard() {
   const [catalog, setCatalog] = useState<MasterCatalogProduct[]>(mockMasterCatalog);
+  
+  // Pending Merchant Applications state
+  const [pendingMerchants, setPendingMerchants] = useState<Profile[]>([
+    {
+      id: 'usr_merchant_102',
+      email: 'kapil.retail@gmail.com',
+      fullName: 'Kapil Verma',
+      businessName: 'Apex Lifestyle Store',
+      role: 'DROPSHIPPER',
+      approvalStatus: 'PENDING',
+      commissionRate: 5,
+      securityDepositPaid: false,
+      onboardingStep: 2,
+      phoneNumber: '+91 98111 88990',
+      city: 'Delhi',
+      state: 'NCR',
+      createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
+    },
+    {
+      id: 'usr_merchant_103',
+      email: 'sneha.gadgets@gmail.com',
+      fullName: 'Sneha Patel',
+      businessName: 'Sneha Gadgets',
+      role: 'DROPSHIPPER',
+      approvalStatus: 'PENDING',
+      commissionRate: 5,
+      securityDepositPaid: false,
+      onboardingStep: 2,
+      phoneNumber: '+91 97222 44556',
+      city: 'Ahmedabad',
+      state: 'Gujarat',
+      createdAt: new Date(Date.now() - 3600000 * 6).toISOString()
+    }
+  ]);
+
+  const [approvedCount, setApprovedCount] = useState(1240);
+
+  // Handle Approve Merchant
+  const handleApproveMerchant = (id: string) => {
+    setPendingMerchants(prev => prev.filter(m => m.id !== id));
+    setApprovedCount(prev => prev + 1);
+  };
+
+  // New product form
   const [newTitle, setNewTitle] = useState('');
   const [newCostPrice, setNewCostPrice] = useState(499);
   const [newRetailPrice, setNewRetailPrice] = useState(1499);
   const [newCategory, setNewCategory] = useState('Electronics');
-  const [isStarter, setIsStarter] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
 
   const handleAddProduct = () => {
@@ -23,10 +66,10 @@ export default function SuperAdminDashboard() {
       costPrice: Number(newCostPrice),
       defaultPrice: Number(newRetailPrice),
       images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80'],
-      sku: `SKU-ADMIN-${Math.floor(Math.random() * 1000)}`,
+      sku: `SKU-360-${Math.floor(Math.random() * 1000)}`,
       category: newCategory,
-      inventory: 500,
-      isStarter: isStarter,
+      inventory: 5000,
+      isStarter: true,
       createdAt: new Date().toISOString()
     };
     setCatalog(prev => [newProd, ...prev]);
@@ -40,11 +83,11 @@ export default function SuperAdminDashboard() {
       <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-black text-white text-xl shadow-lg">
-            SA
+            360
           </div>
           <div>
             <h1 className="font-black text-lg text-white">360 Dropship Super Admin Control Panel</h1>
-            <p className="text-xs text-slate-400">Master Catalog (2000+ Products), Platform Wallet Balances & Profit Accounting</p>
+            <p className="text-xs text-slate-400">Master Catalog (5,000+ Products), Merchant Approvals & 5% Delivered Commission Analytics</p>
           </div>
         </div>
 
@@ -53,33 +96,94 @@ export default function SuperAdminDashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Metric Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
-            <div className="text-xs font-bold text-slate-400 uppercase">Total Active Merchants</div>
-            <div className="text-2xl font-black text-white mt-1">1,240 Dropshippers</div>
+            <div className="text-xs font-bold text-slate-400 uppercase">Active Approved Merchants</div>
+            <div className="text-2xl font-black text-white mt-1">{approvedCount} Dropshippers</div>
           </div>
           <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
-            <div className="text-xs font-bold text-slate-400 uppercase">Master Products Count</div>
-            <div className="text-2xl font-black text-indigo-400 mt-1">2,450 Products</div>
+            <div className="text-xs font-bold text-slate-400 uppercase">Master Wholesale Catalog</div>
+            <div className="text-2xl font-black text-indigo-400 mt-1">5,000+ Products</div>
           </div>
           <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
-            <div className="text-xs font-bold text-slate-400 uppercase">Platform Ad Fee Revenue (20%)</div>
-            <div className="text-2xl font-black text-emerald-400 mt-1">₹1,14,000</div>
+            <div className="text-xs font-bold text-slate-400 uppercase">5% Delivered Order Commission</div>
+            <div className="text-2xl font-black text-emerald-400 mt-1">₹1,84,500</div>
           </div>
           <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
-            <div className="text-xs font-bold text-slate-400 uppercase">Total GST Collected (18%)</div>
-            <div className="text-2xl font-black text-purple-400 mt-1">₹54,200</div>
+            <div className="text-xs font-bold text-slate-400 uppercase">Pending Merchant Approvals</div>
+            <div className="text-2xl font-black text-amber-400 mt-1">{pendingMerchants.length} Applications</div>
           </div>
         </div>
 
-        {/* Catalog Table */}
+        {/* SECTION 1: PENDING MERCHANT APPROVAL REQUESTS */}
         <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-extrabold text-white">Master Wholesale Catalog Management</h3>
-              <p className="text-xs text-slate-400">Add winning products to the platform catalog. Mark them as 50 Free Starter or 2000+ Premium Locked.</p>
+              <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-amber-400" />
+                <span>Pending Dropshipper Merchant Applications</span>
+              </h3>
+              <p className="text-xs text-slate-400">Review onboarding form submissions and manually approve account status to unlock 5,000+ catalog.</p>
+            </div>
+            <span className="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-full">
+              Manual Verification Required
+            </span>
+          </div>
+
+          {pendingMerchants.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-950 text-slate-400 uppercase text-[11px] font-bold tracking-wider">
+                  <tr>
+                    <th className="p-4 rounded-l-xl">Applicant Name</th>
+                    <th className="p-4">Business Name</th>
+                    <th className="p-4">Email / Phone</th>
+                    <th className="p-4">Location</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4 rounded-r-xl">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 text-slate-200">
+                  {pendingMerchants.map(m => (
+                    <tr key={m.id} className="hover:bg-slate-800/40">
+                      <td className="p-4 font-bold text-white">{m.fullName}</td>
+                      <td className="p-4 font-medium text-indigo-400">{m.businessName}</td>
+                      <td className="p-4 text-xs text-slate-300">{m.email} <br /> {m.phoneNumber}</td>
+                      <td className="p-4 text-xs text-slate-400">{m.city}, {m.state}</td>
+                      <td className="p-4">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                          Pending Approval
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <button
+                          onClick={() => handleApproveMerchant(m.id)}
+                          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center space-x-1.5 shadow-md shadow-emerald-600/30"
+                        >
+                          <Check className="w-4 h-4" />
+                          <span>Approve Account</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-8 text-center text-slate-400 text-sm font-semibold">
+              🎉 All pending merchant onboarding applications have been approved!
+            </div>
+          )}
+        </div>
+
+        {/* SECTION 2: MASTER CATALOG MANAGEMENT */}
+        <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-extrabold text-white">Master Wholesale Catalog Management (5,000+ Products)</h3>
+              <p className="text-xs text-slate-400">Add winning products to the platform catalog at factory wholesale prices.</p>
             </div>
             <button
               onClick={() => setShowAddModal(true)}
@@ -98,7 +202,7 @@ export default function SuperAdminDashboard() {
                   <th className="p-4">Category</th>
                   <th className="p-4">Wholesale Cost Price</th>
                   <th className="p-4">Recommended Retail</th>
-                  <th className="p-4">Access Tier</th>
+                  <th className="p-4">Factory Inventory</th>
                   <th className="p-4 rounded-r-xl">SKU</th>
                 </tr>
               </thead>
@@ -112,17 +216,7 @@ export default function SuperAdminDashboard() {
                     <td className="p-4 text-xs text-indigo-400 font-bold">{item.category}</td>
                     <td className="p-4 font-black text-emerald-400">₹{item.costPrice}</td>
                     <td className="p-4 font-bold text-white">₹{item.defaultPrice}</td>
-                    <td className="p-4">
-                      {item.isStarter ? (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                          Free 50 Starter
-                        </span>
-                      ) : (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                          Locked Premium (Recharge Required)
-                        </span>
-                      )}
-                    </td>
+                    <td className="p-4 text-xs font-bold text-slate-300">{item.inventory.toLocaleString()} units</td>
                     <td className="p-4 text-xs font-mono text-slate-400">{item.sku}</td>
                   </tr>
                 ))}
@@ -171,17 +265,6 @@ export default function SuperAdminDashboard() {
                   className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-sm"
                 />
               </div>
-            </div>
-
-            <div className="flex items-center space-x-3 pt-2">
-              <input
-                type="checkbox"
-                id="starterCheck"
-                checked={isStarter}
-                onChange={e => setIsStarter(e.target.checked)}
-                className="w-5 h-5 rounded bg-slate-950 border-slate-800 text-indigo-600"
-              />
-              <label htmlFor="starterCheck" className="text-xs text-slate-300 font-bold">Include in Free 50 Starter List (Unlocked for all new signups)</label>
             </div>
 
             <button
