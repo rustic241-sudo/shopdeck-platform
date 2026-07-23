@@ -639,7 +639,7 @@ export default function DropshipperDashboard() {
 
               {/* Add Money Form & Quick Buttons */}
               <div className="space-y-4">
-                <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Quick Deposit / Add Funds To Ads Wallet</div>
+                <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Quick Deposit / Add Funds To Ads Wallet (Pro UPI QR 0% Fee Gateway)</div>
                 
                 <div className="flex flex-wrap gap-3">
                   {[1000, 2500, 5000, 10000].map(amt => (
@@ -654,26 +654,53 @@ export default function DropshipperDashboard() {
                   ))}
                 </div>
 
-                {/* Custom Amount Form */}
-                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-                  <div className="relative flex-1 w-full">
-                    <span className="absolute left-4 top-3 text-slate-400 font-bold text-sm">₹</span>
-                    <input
-                      type="number"
-                      value={customRechargeAmount}
-                      onChange={e => setCustomRechargeAmount(Number(e.target.value))}
-                      className="w-full pl-9 pr-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 text-white font-bold text-sm outline-none focus:border-indigo-500"
-                      placeholder="Enter custom recharge amount"
-                    />
+                {/* Custom Amount Form + Pro UPI QR Widget */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center pt-2">
+                  <div className="lg:col-span-2 space-y-3">
+                    <div className="relative w-full">
+                      <span className="absolute left-4 top-3 text-slate-400 font-bold text-sm">₹</span>
+                      <input
+                        type="number"
+                        value={customRechargeAmount}
+                        onChange={e => setCustomRechargeAmount(Number(e.target.value))}
+                        className="w-full pl-9 pr-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 text-white font-bold text-sm outline-none focus:border-indigo-500"
+                        placeholder="Enter custom recharge amount"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        onClick={() => handleAddMoneyToAdsWallet(customRechargeAmount)}
+                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-extrabold text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition-all"
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        <span>Instant Deposit ₹{customRechargeAmount}</span>
+                      </button>
+
+                      <a
+                        href={`https://www.proupiqr.in/r/?url=upi%3A%2F%2Fpay%3Fpa%3D${encodeURIComponent(upiQrVpa)}%26pn%3D360%2520Dropship%2520Ads%2520Wallet%26am%3D${customRechargeAmount}%26tn%3DAdsWalletRecharge`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 transition-all"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span>Open GPay / PhonePe / Paytm App</span>
+                      </a>
+                    </div>
                   </div>
 
-                  <button
-                    onClick={() => handleAddMoneyToAdsWallet(customRechargeAmount)}
-                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-extrabold text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition-all"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span>Recharge Ads Wallet via UPI / Razorpay</span>
-                  </button>
+                  {/* Pro UPI QR Live Widget Preview Embed */}
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center flex flex-col items-center">
+                    <div className="text-[10px] font-bold text-slate-300 uppercase mb-2">Scan & Pay via Pro UPI QR</div>
+                    <iframe
+                      src={`https://www.proupiqr.in/embed/?pa=${encodeURIComponent(upiQrVpa)}&pn=360+Dropship+Ads+Wallet&am=${customRechargeAmount}&tn=AdsWalletRecharge&theme=4f46e5`}
+                      width="100%"
+                      height="210"
+                      style={{ border: 'none', background: 'transparent', overflow: 'hidden' }}
+                      title="Pro UPI QR Ads Wallet Deposit Widget"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">Powered by ProUPIQR.in Zero-Fee Gateway API</p>
+                  </div>
                 </div>
               </div>
             </div>
