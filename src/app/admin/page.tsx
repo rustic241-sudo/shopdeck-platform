@@ -338,6 +338,14 @@ export default function SuperAdminDashboard() {
                 <div className="text-[10px] text-slate-400 uppercase font-bold">Net Profit Settlement Payout</div>
                 <div className="text-xl font-black text-emerald-600">₹925.05</div>
               </div>
+              <button
+                onClick={() => alert('Payout of ₹925.05 transferred via IMPS/NEFT to HDFC Bank A/C 50100293849182!')}
+                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/20"
+              >
+                Send Bank Transfer Payout
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* SECTION: SUPER ADMIN GLOBAL PAYMENT GATEWAY SETTINGS */}
