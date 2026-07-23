@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { mockMasterCatalog, mockProfile, mockStore, mockOrders } from '@/lib/mockData';
 import { MasterCatalogProduct, Profile } from '@/lib/types';
-import { ShieldCheck, Plus, Package, Users, DollarSign, Layers, CheckCircle2, TrendingUp, Sparkles, Clock, Check, X } from 'lucide-react';
+import { ShieldCheck, Plus, Package, Users, DollarSign, Layers, CheckCircle2, TrendingUp, Sparkles, Clock, Check, X, Landmark, CreditCard } from 'lucide-react';
 
 export default function SuperAdminDashboard() {
   const [catalog, setCatalog] = useState<MasterCatalogProduct[]>(mockMasterCatalog);
@@ -23,6 +23,11 @@ export default function SuperAdminDashboard() {
       phoneNumber: '+91 98111 88990',
       city: 'Delhi',
       state: 'NCR',
+      bankAccountHolder: 'Kapil Verma',
+      bankName: 'ICICI Bank',
+      accountNumber: '001201589218',
+      ifscCode: 'ICIC0000012',
+      upiId: 'kapilverma@icici',
       createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
     },
     {
@@ -38,6 +43,11 @@ export default function SuperAdminDashboard() {
       phoneNumber: '+91 97222 44556',
       city: 'Ahmedabad',
       state: 'Gujarat',
+      bankAccountHolder: 'Sneha Patel',
+      bankName: 'Axis Bank',
+      accountNumber: '9180200481920',
+      ifscCode: 'UTIB0000214',
+      upiId: 'sneha@axisbank',
       createdAt: new Date(Date.now() - 3600000 * 6).toISOString()
     }
   ]);
@@ -87,7 +97,7 @@ export default function SuperAdminDashboard() {
           </div>
           <div>
             <h1 className="font-black text-lg text-white">360 Dropship Super Admin Control Panel</h1>
-            <p className="text-xs text-slate-400">Master Catalog (5,000+ Products), Merchant Approvals & 5% Delivered Commission Analytics</p>
+            <p className="text-xs text-slate-400">Master Catalog (5,000+ Products), Merchant Payouts & 5% Delivered Commission</p>
           </div>
         </div>
 
@@ -117,15 +127,15 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        {/* SECTION 1: PENDING MERCHANT APPROVAL REQUESTS */}
+        {/* SECTION 1: PENDING MERCHANT APPROVAL & PAYOUT BANK DETAILS */}
         <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
                 <Clock className="w-5 h-5 text-amber-400" />
-                <span>Pending Dropshipper Merchant Applications</span>
+                <span>Pending Dropshipper Applications & Payout Bank Details</span>
               </h3>
-              <p className="text-xs text-slate-400">Review onboarding form submissions and manually approve account status to unlock 5,000+ catalog.</p>
+              <p className="text-xs text-slate-400">Review merchant onboarding details and registered bank accounts for profit payouts.</p>
             </div>
             <span className="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-full">
               Manual Verification Required
@@ -137,10 +147,9 @@ export default function SuperAdminDashboard() {
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-950 text-slate-400 uppercase text-[11px] font-bold tracking-wider">
                   <tr>
-                    <th className="p-4 rounded-l-xl">Applicant Name</th>
-                    <th className="p-4">Business Name</th>
-                    <th className="p-4">Email / Phone</th>
-                    <th className="p-4">Location</th>
+                    <th className="p-4 rounded-l-xl">Applicant & Business</th>
+                    <th className="p-4">Contact Info</th>
+                    <th className="p-4">Registered Bank Account (For Payouts)</th>
                     <th className="p-4">Status</th>
                     <th className="p-4 rounded-r-xl">Action</th>
                   </tr>
@@ -148,10 +157,19 @@ export default function SuperAdminDashboard() {
                 <tbody className="divide-y divide-slate-800 text-slate-200">
                   {pendingMerchants.map(m => (
                     <tr key={m.id} className="hover:bg-slate-800/40">
-                      <td className="p-4 font-bold text-white">{m.fullName}</td>
-                      <td className="p-4 font-medium text-indigo-400">{m.businessName}</td>
-                      <td className="p-4 text-xs text-slate-300">{m.email} <br /> {m.phoneNumber}</td>
-                      <td className="p-4 text-xs text-slate-400">{m.city}, {m.state}</td>
+                      <td className="p-4">
+                        <div className="font-bold text-white">{m.fullName}</div>
+                        <div className="text-xs text-indigo-400 font-semibold">{m.businessName}</div>
+                      </td>
+                      <td className="p-4 text-xs text-slate-300">
+                        <div>{m.email}</div>
+                        <div className="text-slate-400">{m.phoneNumber} • {m.city}</div>
+                      </td>
+                      <td className="p-4 text-xs font-mono">
+                        <div className="font-bold text-emerald-400">{m.bankName} ({m.bankAccountHolder})</div>
+                        <div className="text-slate-300">A/C: {m.accountNumber} • IFSC: {m.ifscCode}</div>
+                        <div className="text-indigo-400">UPI: {m.upiId}</div>
+                      </td>
                       <td className="p-4">
                         <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
                           Pending Approval
@@ -178,7 +196,45 @@ export default function SuperAdminDashboard() {
           )}
         </div>
 
-        {/* SECTION 2: MASTER CATALOG MANAGEMENT */}
+        {/* SECTION 2: ACTIVE MERCHANT PROFIT PAYOUT SETTLEMENTS */}
+        <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+                <Landmark className="w-5 h-5 text-emerald-400" />
+                <span>Active Merchant Profit Payout Transfer Queue</span>
+              </h3>
+              <p className="text-xs text-slate-400">Transfer order profits directly to merchant bank accounts after 5% delivered commission deduction.</p>
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold">
+                <Landmark className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-extrabold text-white">{mockProfile.fullName} ({mockProfile.businessName})</div>
+                <div className="text-xs text-slate-300 font-mono">Bank: {mockProfile.bankName} • A/C: {mockProfile.accountNumber} • IFSC: {mockProfile.ifscCode}</div>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <div className="text-[10px] text-slate-400 uppercase font-bold">Net Profit Settlement Payout</div>
+                <div className="text-xl font-black text-emerald-400">₹925.05</div>
+              </div>
+              <button
+                onClick={() => alert('Payout of ₹925.05 transferred via IMPS/NEFT to HDFC Bank A/C 50100293849182!')}
+                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30"
+              >
+                Send Bank Transfer Payout
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 3: MASTER CATALOG MANAGEMENT */}
         <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
           <div className="flex items-center justify-between mb-6">
             <div>
