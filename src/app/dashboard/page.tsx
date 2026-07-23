@@ -107,13 +107,13 @@ export default function DropshipperDashboard() {
       <header className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-500/30">
-            S
+            360
           </div>
           <div>
             <h1 className="font-extrabold text-lg text-white tracking-tight flex items-center gap-2">
-              Shopdeck <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Merchant OS</span>
+              360 Dropship <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Merchant OS</span>
             </h1>
-            <p className="text-xs text-slate-400">{store.name} ({store.subdomain}.shopdeck.in)</p>
+            <p className="text-xs text-slate-400">{store.name} ({store.subdomain}.360dropship.in)</p>
           </div>
         </div>
 
