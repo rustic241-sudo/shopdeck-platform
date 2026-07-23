@@ -190,7 +190,7 @@ export default function RootHomePage() {
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal">
-            Zero Monthly Fees. We run high-converting <span className="font-extrabold text-indigo-600">Meta (FB/Insta) & Google Ads</span> for your store, provide 5,000+ winning products & WhatsApp COD verification. We charge only <span className="font-extrabold text-emerald-600 underline">5% Commission on Delivered Orders</span>!
+            Connect your <span className="font-extrabold text-emerald-600">Shopify Store in 1-Click</span>! We auto-sync 5,000+ winning factory products, run high-converting <span className="font-extrabold text-indigo-600">Meta (FB/Insta) & Google Ads</span>, and fulfill COD orders across India. We charge only <span className="font-extrabold text-emerald-600 underline">5% Commission on Delivered Orders</span>!
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
@@ -202,14 +202,13 @@ export default function RootHomePage() {
               <span>Apply for Merchant Approval</span>
             </button>
 
-            <Link
-              href="/store/trendygadgets"
-              target="_blank"
+            <button
+              onClick={() => { setAuthMode('LOGIN'); setIsSubmitted(false); setShowAuthModal(true); }}
               className="px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 font-extrabold text-base shadow-sm transition-all flex items-center space-x-2 hover:scale-105"
             >
-              <Eye className="w-5 h-5 text-indigo-600" />
-              <span>Explore Live Store Demo</span>
-            </Link>
+              <ShoppingBag className="w-5 h-5 text-emerald-600" />
+              <span>Connect Your Shopify Store</span>
+            </button>
           </div>
 
           {/* Stat Cards Matrix */}
