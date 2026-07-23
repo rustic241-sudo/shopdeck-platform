@@ -59,12 +59,14 @@ export default function RootHomePage() {
   const [dailyOrders, setDailyOrders] = useState(15);
   const [avgSellingPrice, setAvgSellingPrice] = useState(1499);
   const [avgCostPrice, setAvgCostPrice] = useState(499);
+  const [avgAdSpendPerOrder, setAvgAdSpendPerOrder] = useState(250); // Meta Ad Spend per Order (CPA)
 
   // Calculations for Profit Calculator
   const totalRevenue = dailyOrders * avgSellingPrice * 30;
   const totalWholesaleCost = dailyOrders * avgCostPrice * 30;
-  const totalPlatformCommission = totalRevenue * 0.05; // 5% commission on delivered
-  const estimatedNetMonthlyProfit = totalRevenue - totalWholesaleCost - totalPlatformCommission;
+  const totalAdSpend = dailyOrders * avgAdSpendPerOrder * 30;
+  const totalPlatformCommission = totalRevenue * 0.05; // 5% commission on delivered orders
+  const estimatedNetMonthlyProfit = totalRevenue - totalWholesaleCost - totalAdSpend - totalPlatformCommission;
 
   // FAQ Accordion State
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -349,6 +351,22 @@ export default function RootHomePage() {
                     className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                   />
                 </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5">
+                    <span>Meta Ad Spend / Cost Per Order (CPA)</span>
+                    <span className="text-pink-400 font-mono">₹{avgAdSpendPerOrder} / Order</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="50"
+                    max="600"
+                    step="25"
+                    value={avgAdSpendPerOrder}
+                    onChange={e => setAvgAdSpendPerOrder(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-pink-500"
+                  />
+                </div>
               </div>
             </div>
 
@@ -364,6 +382,10 @@ export default function RootHomePage() {
                 <div className="flex justify-between text-slate-400">
                   <span>Wholesale Product Sourcing Cost:</span>
                   <span className="font-bold text-slate-300 font-mono">- ₹{totalWholesaleCost.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-slate-400">
+                  <span>Estimated Meta (FB/Insta) Ad Spend:</span>
+                  <span className="font-bold text-pink-400 font-mono">- ₹{totalAdSpend.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
                   <span>360 Dropship 5% Delivered Commission:</span>
