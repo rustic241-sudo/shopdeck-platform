@@ -127,7 +127,7 @@ export default function DropshipperDashboard() {
     setTimeout(() => setAlertMsg(null), 4000);
   };
 
-  // Handle CSV File Upload & Parsing
+  // Handle CSV File Upload & Parsing (Supports both Shopify CSV Export & Standard CSV)
   const handleCsvFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -143,25 +143,58 @@ export default function DropshipperDashboard() {
         return;
       }
 
+      // Parse Header
+      const headerLine = lines[0];
+      const headers = headerLine.split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+
+      // Helper to find column index by list of possible header names
+      const findColIdx = (possibleNames: string[], defaultIdx: number) => {
+        const found = headers.findIndex(h => possibleNames.some(name => h === name.toLowerCase()));
+        return found !== -1 ? found : defaultIdx;
+      };
+
+      const titleIdx = findColIdx(['title', 'handle', 'product name'], 0);
+      const categoryIdx = findColIdx(['type', 'vendor', 'category'], 1);
+      const costIdx = findColIdx(['cost per item', 'wholesalecost', 'costprice', 'cost'], 45);
+      const priceIdx = findColIdx(['variant price', 'retailprice', 'price', 'defaultprice'], 18);
+      const skuIdx = findColIdx(['variant sku', 'sku'], 13);
+      const imageIdx = findColIdx(['image src', 'variant image', 'imageurl', 'image'], 23);
+      const descIdx = findColIdx(['body (html)', 'description', 'body'], 2);
+
+      const isShopifyFormat = headers.includes('handle') || headers.includes('variant price') || headers.includes('image src');
+
       // Skip Header Row
       const rows = lines.slice(1);
       const parsed = rows.map((row, idx) => {
-        const cols = row.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+        // Robust CSV splitting handling quotes
+        const cols = row.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
+        
+        const title = cols[titleIdx] || `Shopify Product #${idx + 1}`;
+        const category = cols[categoryIdx] || 'Shopify Store Import';
+        const rawCost = cols[costIdx] ? parseFloat(cols[costIdx].replace(/[^0-9.]/g, '')) : NaN;
+        const rawPrice = cols[priceIdx] ? parseFloat(cols[priceIdx].replace(/[^0-9.]/g, '')) : NaN;
+        
+        const defaultPrice = !isNaN(rawPrice) && rawPrice > 0 ? rawPrice : 999;
+        const costPrice = !isNaN(rawCost) && rawCost > 0 ? rawCost : Math.round(defaultPrice * 0.4);
+        const sku = cols[skuIdx] || `SKU-SHOPIFY-${100 + idx}`;
+        const image = cols[imageIdx] || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80';
+        const description = cols[descIdx]?.replace(/<[^>]*>?/gm, '') || 'High converting Shopify product imported into 360 Dropship catalog.';
+
         return {
           id: `excel_prod_${Date.now()}_${idx}`,
-          title: cols[0] || `Excel Product #${idx + 1}`,
-          category: cols[1] || 'General Gadgets',
-          costPrice: Number(cols[2]) || 299,
-          defaultPrice: Number(cols[3]) || 899,
-          sku: cols[4] || `SKU-EXCEL-${100 + idx}`,
-          images: [cols[5] || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80'],
-          description: cols[6] || 'High quality factory product imported via Excel file.',
-          inventory: Number(cols[7]) || 500
+          title,
+          category,
+          costPrice,
+          defaultPrice,
+          sku,
+          images: [image],
+          description,
+          inventory: 500
         };
       });
 
       setParsedExcelProducts(parsed);
-      showAlert(`Successfully parsed ${parsed.length} products from Excel/CSV file! 🎉`);
+      showAlert(`🎉 Auto-Detected ${isShopifyFormat ? 'Shopify Export CSV' : 'Standard Excel/CSV'} Format! Parsed ${parsed.length} products!`);
     };
     reader.readAsText(file);
   };
