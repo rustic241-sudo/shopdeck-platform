@@ -62,10 +62,17 @@ export default function DropshipperDashboard() {
   const [myProducts, setMyProducts] = useState<Product[]>(mockMerchantProducts);
   
   // Navigation active tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'catalog' | 'my_products' | 'customization' | 'ads' | 'analytics' | 'commission' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'catalog' | 'my_products' | 'shopify' | 'ads' | 'analytics' | 'commission' | 'settings'>('overview');
 
   // Mobile sidebar drawer state
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Shopify Store Integration & Sync State
+  const [shopifyConnected, setShopifyConnected] = useState(true);
+  const [shopifyDomain, setShopifyDomain] = useState('trendygadgets.myshopify.com');
+  const [shopifyToken, setShopifyToken] = useState('shpat_98a76b54c3210fed');
+  const [autoSyncProducts, setAutoSyncProducts] = useState(true);
+  const [autoSyncOrders, setAutoSyncOrders] = useState(true);
 
   // Payment Gateway Configuration State
   const [codEnabled, setCodEnabled] = useState(true);
@@ -224,7 +231,7 @@ export default function DropshipperDashboard() {
     { id: 'overview', label: 'Overview & Orders', icon: ShoppingBag, badge: 'Live' },
     { id: 'catalog', label: 'All Products', icon: Layers, badge: '5,000+' },
     { id: 'my_products', label: 'My Products', icon: Store, badge: `${myProducts.length}` },
-    { id: 'customization', label: 'Store Theme & Styling', icon: Palette },
+    { id: 'shopify', label: 'Shopify Store Connect', icon: ShoppingBag, badge: 'Auto-Sync' },
     { id: 'ads', label: 'Meta & Google Ads Engine', icon: Megaphone },
     { id: 'analytics', label: 'Google Analytics & AI', icon: BarChart3 },
     { id: 'commission', label: 'Payouts & Ledger', icon: Percent },
