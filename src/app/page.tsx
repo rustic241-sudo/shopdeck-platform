@@ -34,7 +34,11 @@ import {
   HelpCircle,
   Award,
   Clock,
-  Check
+  Check,
+  ChevronDown,
+  Calculator,
+  Grid,
+  CreditCard
 } from 'lucide-react';
 
 export default function RootHomePage() {
@@ -49,8 +53,21 @@ export default function RootHomePage() {
   const [businessName, setBusinessName] = useState('');
   const [city, setCity] = useState('');
   const [stateName, setStateName] = useState('');
-  const [gstPanOptional, setGstPanOptional] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Profit Calculator State
+  const [dailyOrders, setDailyOrders] = useState(15);
+  const [avgSellingPrice, setAvgSellingPrice] = useState(1499);
+  const [avgCostPrice, setAvgCostPrice] = useState(499);
+
+  // Calculations for Profit Calculator
+  const totalRevenue = dailyOrders * avgSellingPrice * 30;
+  const totalWholesaleCost = dailyOrders * avgCostPrice * 30;
+  const totalPlatformCommission = totalRevenue * 0.05; // 5% commission on delivered
+  const estimatedNetMonthlyProfit = totalRevenue - totalWholesaleCost - totalPlatformCommission;
+
+  // FAQ Accordion State
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +77,37 @@ export default function RootHomePage() {
       window.location.href = '/dashboard';
     }
   };
+
+  const handleGoogleLogin = () => {
+    // Google Sign in simulation
+    window.location.href = '/dashboard';
+  };
+
+  const faqs = [
+    {
+      q: "Is there any monthly software or subscription fee?",
+      a: "No! 360 Dropship is 100% free to start. We do NOT charge any monthly software fees, Shopify app costs, or server maintenance fees. You pay zero platform fees until you make delivered sales."
+    },
+    {
+      q: "How does the 5% commission model work?",
+      a: "We charge a flat 5% commission ONLY on orders that are successfully delivered to the customer. If an order is canceled or returned (RTO), 0% commission is charged."
+    },    {
+      q: "How do I get paid for Cash on Delivery (COD) orders?",
+      a: "Our logistics courier partners collect the cash upon delivery. The order amount (minus 5% platform commission and wholesale product cost) is directly remitted into your registered bank account on a daily payout cycle."
+    },
+    {
+      q: "How long does manual account approval take?",
+      a: "Our merchant verification team typically reviews and approves onboarding applications within 2 to 6 business hours. Once approved, your status becomes 'ACCOUNT ACTIVE' and you unlock all factory products."
+    },
+    {
+      q: "Can I connect my own custom GoDaddy domain?",
+      a: "Yes! Every merchant gets a free subdomain (`mystore.360dropship.in`) and can also map their own custom domain (`mystore.com` or `.in`) via GoDaddy CNAME DNS records."
+    },
+    {
+      q: "How does automated WhatsApp verification reduce RTO?",
+      a: "As soon as a buyer places a COD order on your storefront, our automated WhatsApp engine sends an instant confirmation message to their phone. Orders are dispatched only after positive buyer confirmation, reducing return rates under 5%."
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white relative overflow-hidden">
@@ -82,16 +130,16 @@ export default function RootHomePage() {
             </div>
           </div>
 
-          {/* Center Navigation Links (Factori Retailing Style) */}
+          {/* Center Navigation Links */}
           <nav className="hidden lg:flex items-center space-x-8 text-sm font-bold text-slate-300">
             <a href="#how-it-works" className="hover:text-indigo-400 transition-all">How It Works</a>
-            <a href="#features" className="hover:text-indigo-400 transition-all">Dropshipper Benefits</a>
-            <a href="#catalog" className="hover:text-indigo-400 transition-all">5,000+ Catalog</a>
-            <a href="#commission" className="hover:text-indigo-400 transition-all">5% Commission Model</a>
+            <a href="#categories" className="hover:text-indigo-400 transition-all">Wholesale Categories</a>
+            <a href="#calculator" className="hover:text-indigo-400 transition-all">Profit Calculator</a>
+            <a href="#faqs" className="hover:text-indigo-400 transition-all">FAQs</a>
             <a href="#comparison" className="hover:text-indigo-400 transition-all">Why 360 Dropship</a>
           </nav>
 
-          {/* Action Buttons (Dropshipper Login/Signup Only) */}
+          {/* Action Buttons */}
           <div className="flex items-center space-x-3">
             <button
               onClick={() => { setAuthMode('LOGIN'); setIsSubmitted(false); setShowAuthModal(true); }}
@@ -112,10 +160,9 @@ export default function RootHomePage() {
         </div>
       </header>
 
-      {/* HERO BANNER SECTION (Retailing Factori Reference Style) */}
+      {/* HERO BANNER SECTION */}
       <section className="max-w-7xl mx-auto px-6 pt-16 pb-20 relative z-10">
         <div className="text-center space-y-8 max-w-4xl mx-auto">
-          {/* Top Pill Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-indigo-500/30 shadow-xl">
             <Sparkles className="w-4 h-4 text-pink-400 animate-pulse" />
             <span className="text-xs font-extrabold text-indigo-300 uppercase tracking-widest">
@@ -123,20 +170,17 @@ export default function RootHomePage() {
             </span>
           </div>
 
-          {/* Hero Main Headline */}
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.1]">
-            Scale Your E-Commerce Business With <br />
+            Scale Your E-Commerce Brand With <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
-              5,000+ Factory Wholesale Products.
+              All Factory Wholesale Products.
             </span>
           </h1>
 
-          {/* Subtitle */}
           <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
-            Zero Monthly Software Fees. We provide 1-click stores, 5,000+ winning products, automated WhatsApp COD verification, Google Analytics & Meta Ads integration. We charge only <span className="font-extrabold text-emerald-400 underline">5% Commission on Delivered Orders</span>!
+            Zero Monthly Software Fees. We provide 1-click stores, all winning products, automated WhatsApp COD verification, Google Analytics & Meta Ads integration. We charge only <span className="font-extrabold text-emerald-400 underline">5% Commission on Delivered Orders</span>!
           </p>
 
-          {/* Action CTAs */}
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <button
               onClick={() => { setAuthMode('SIGNUP'); setIsSubmitted(false); setShowAuthModal(true); }}
@@ -156,10 +200,10 @@ export default function RootHomePage() {
             </Link>
           </div>
 
-          {/* Stat Cards Matrix (Factori Style) */}
+          {/* Stat Cards Matrix */}
           <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition-all">
-              <div className="text-2xl sm:text-3xl font-black text-white">5,000+</div>
+              <div className="text-2xl sm:text-3xl font-black text-white">All</div>
               <div className="text-xs text-slate-400 font-bold uppercase mt-1">Wholesale Products</div>
             </div>
             <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-emerald-500/40 transition-all">
@@ -178,7 +222,172 @@ export default function RootHomePage() {
         </div>
       </section>
 
-      {/* 3. HOW IT WORKS / ONBOARDING STEPS SECTION (FACTORI RETAILING STYLE) */}
+      {/* POPULAR WHOLESALE CATEGORIES SECTION */}
+      <section id="categories" className="max-w-7xl mx-auto px-6 py-20 relative z-10 border-t border-slate-800/80">
+        <div className="text-center space-y-3 mb-16 max-w-2xl mx-auto">
+          <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-bold uppercase border border-indigo-500/30">
+            High Margin Categories
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black text-white">Popular Factory Wholesale Categories</h2>
+          <p className="text-slate-400 text-sm">Source top-performing winning products directly from Indian factory suppliers.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            {
+              title: 'Electronics & Smart Gadgets',
+              count: '1,200+ Products',
+              margin: '60% - 75% Margin',
+              image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+              title: 'Home Decor & Living',
+              count: '950+ Products',
+              margin: '65% - 80% Margin',
+              image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+              title: 'Kitchenware & Appliances',
+              count: '800+ Products',
+              margin: '55% - 70% Margin',
+              image: 'https://images.unsplash.com/photo-1570288685369-f7305163d0e3?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+              title: 'Beauty & Personal Care',
+              count: '700+ Products',
+              margin: '70% - 85% Margin',
+              image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+              title: 'Fitness & Healthcare',
+              count: '650+ Products',
+              margin: '60% - 75% Margin',
+              image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80'
+            },
+            {
+              title: 'Fashion & Wearable Tech',
+              count: '750+ Products',
+              margin: '65% - 80% Margin',
+              image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80'
+            }
+          ].map((cat, idx) => (
+            <div key={idx} className="rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden group hover:border-indigo-500/50 transition-all shadow-xl">
+              <div className="h-44 relative overflow-hidden bg-slate-950">
+                <img src={cat.image} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                <span className="absolute bottom-3 left-3 px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-full">
+                  {cat.margin}
+                </span>
+              </div>
+              <div className="p-5">
+                <h4 className="font-extrabold text-white text-lg">{cat.title}</h4>
+                <p className="text-xs text-slate-400 mt-1">{cat.count} Available for 1-Click Import</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* INTERACTIVE PROFIT CALCULATOR SECTION */}
+      <section id="calculator" className="max-w-7xl mx-auto px-6 py-20 relative z-10 border-t border-slate-800/80">
+        <div className="p-8 md:p-12 rounded-3xl bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/40 shadow-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full text-xs font-bold uppercase">
+                <Calculator className="w-4 h-4 text-amber-300" />
+                <span>Estimate Your Earnings</span>
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-white">Calculate Your Monthly Net Profit</h2>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                See how much you can earn every month with 360 Dropship. We charge only <span className="text-emerald-400 font-bold">5% commission on delivered orders</span> with zero monthly subscription fees!
+              </p>
+
+              <div className="space-y-4 pt-2">
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5">
+                    <span>Daily Orders Shipped</span>
+                    <span className="text-indigo-400 font-mono">{dailyOrders} Orders / Day</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="100"
+                    value={dailyOrders}
+                    onChange={e => setDailyOrders(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5">
+                    <span>Average Customer Retail Price</span>
+                    <span className="text-indigo-400 font-mono">₹{avgSellingPrice}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="699"
+                    max="3999"
+                    step="100"
+                    value={avgSellingPrice}
+                    onChange={e => setAvgSellingPrice(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5">
+                    <span>Factory Wholesale Cost</span>
+                    <span className="text-indigo-400 font-mono">₹{avgCostPrice}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="199"
+                    max="1500"
+                    step="50"
+                    value={avgCostPrice}
+                    onChange={e => setAvgCostPrice(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Profit Calculation Box */}
+            <div className="p-8 rounded-3xl bg-slate-950 border border-slate-800 space-y-6 shadow-xl">
+              <h3 className="text-xl font-extrabold text-white border-b border-slate-800 pb-4">Estimated Monthly Revenue & Profit</h3>
+              
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between text-slate-400">
+                  <span>Gross Monthly Sales (30 Days):</span>
+                  <span className="font-bold text-white font-mono">₹{totalRevenue.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-slate-400">
+                  <span>Wholesale Product Sourcing Cost:</span>
+                  <span className="font-bold text-slate-300 font-mono">- ₹{totalWholesaleCost.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-slate-400">
+                  <span>360 Dropship 5% Delivered Commission:</span>
+                  <span className="font-bold text-amber-400 font-mono">- ₹{totalPlatformCommission.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-slate-400">
+                  <span>Monthly Software Subscription Fee:</span>
+                  <span className="font-extrabold text-emerald-400">₹0 FREE</span>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 text-center">
+                <div className="text-xs uppercase font-bold text-indigo-300 tracking-wider">Your Estimated Net Monthly Profit</div>
+                <div className="text-3xl sm:text-4xl font-black text-emerald-400 mt-1 font-mono">
+                  ₹{estimatedNetMonthlyProfit.toLocaleString()}
+                </div>
+                <div className="text-[11px] text-slate-400 mt-1">Credited directly to your Indian Bank Account</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS SECTION */}
       <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-20 relative z-10 border-t border-slate-800/80">
         <div className="text-center space-y-3 mb-16 max-w-2xl mx-auto">
           <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-bold uppercase border border-indigo-500/30">
@@ -204,8 +413,8 @@ export default function RootHomePage() {
             },
             {
               step: '03',
-              title: 'Access 5,000+ Catalog',
-              desc: 'Once approved, unlock full access to 5,000+ winning products & set up your 1-Click Store.',
+              title: 'Access All Catalog',
+              desc: 'Once approved, unlock full access to all factory winning products & set up your 1-Click Store.',
               status: 'Full Access'
             },
             {
@@ -229,130 +438,33 @@ export default function RootHomePage() {
         </div>
       </section>
 
-      {/* DROPSHIPPER FEATURES & INTEGRATIONS */}
-      <section id="features" className="max-w-7xl mx-auto px-6 py-20 relative z-10 border-t border-slate-800/80">
-        <div className="text-center space-y-3 mb-16 max-w-2xl mx-auto">
+      {/* FAQ SECTION */}
+      <section id="faqs" className="max-w-5xl mx-auto px-6 py-20 relative z-10 border-t border-slate-800/80">
+        <div className="text-center space-y-3 mb-16">
           <span className="px-3 py-1 bg-pink-500/20 text-pink-400 rounded-full text-xs font-bold uppercase border border-pink-500/30">
-            Full-Stack E-Commerce Infrastructure
+            Got Questions?
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black text-white">Built Specifically For High-Volume Dropshippers</h2>
+          <h2 className="text-3xl sm:text-5xl font-black text-white">Frequently Asked Questions</h2>
+          <p className="text-slate-400 text-sm">Everything you need to know about 360 Dropship platform & policies.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Feature 1 */}
-          <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 transition-all space-y-4 shadow-xl">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
-              <Package className="w-7 h-7" />
+        <div className="space-y-4">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden">
+              <button
+                onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
+                className="w-full p-6 text-left font-extrabold text-white text-base sm:text-lg flex items-center justify-between hover:text-indigo-400 transition-all"
+              >
+                <span>{faq.q}</span>
+                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${openFaqIndex === idx ? 'rotate-180 text-indigo-400' : 'text-slate-500'}`} />
+              </button>
+              {openFaqIndex === idx && (
+                <div className="px-6 pb-6 text-slate-300 text-sm leading-relaxed border-t border-slate-800/50 pt-4">
+                  {faq.a}
+                </div>
+              )}
             </div>
-            <h3 className="text-xl font-extrabold text-white">5,000+ Factory Wholesale Catalog</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Direct factory pricing on 5,000+ trending winning products across Electronics, Home, Kitchenware, & Lifestyle.
-            </p>
-          </div>
-
-          {/* Feature 2 */}
-          <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-pink-500/50 transition-all space-y-4 shadow-xl">
-            <div className="w-14 h-14 rounded-2xl bg-pink-600/20 text-pink-400 flex items-center justify-center font-bold">
-              <TrendingUp className="w-7 h-7" />
-            </div>
-            <h3 className="text-xl font-extrabold text-white">Google Analytics & Meta Ads Integrated</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Track store traffic with built-in Google Analytics ID (`G-XXXXXXXX`) and launch high-ROAS Meta (Facebook/Instagram) ad campaigns directly.
-            </p>
-          </div>
-
-          {/* Feature 3 */}
-          <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 transition-all space-y-4 shadow-xl">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold">
-              <Percent className="w-7 h-7" />
-            </div>
-            <h3 className="text-xl font-extrabold text-white">5% Commission on Delivered Orders</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              No upfront order fees, no monthly software charges. We charge a flat 5% commission only when an order is successfully delivered!
-            </p>
-          </div>
-
-          {/* Feature 4 */}
-          <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/50 transition-all space-y-4 shadow-xl">
-            <div className="w-14 h-14 rounded-2xl bg-purple-600/20 text-purple-400 flex items-center justify-center font-bold">
-              <MessageSquare className="w-7 h-7" />
-            </div>
-            <h3 className="text-xl font-extrabold text-white">WhatsApp COD Verification (&lt;5% RTO)</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Automated WhatsApp order confirmation sent to every buyer before dispatch, cutting return (RTO) rates to under 5%.
-            </p>
-          </div>
-
-          {/* Feature 5 */}
-          <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 transition-all space-y-4 shadow-xl">
-            <div className="w-14 h-14 rounded-2xl bg-amber-600/20 text-amber-400 flex items-center justify-center font-bold">
-              <Bot className="w-7 h-7" />
-            </div>
-            <h3 className="text-xl font-extrabold text-white">Google Gemini AI Landing Page Gen</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Automatically creates high-converting HTML landing page descriptions using supplier photos at ₹0 extra image API cost.
-            </p>
-          </div>
-
-          {/* Feature 6 */}
-          <div className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-4 shadow-xl">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-600/20 text-cyan-400 flex items-center justify-center font-bold">
-              <Store className="w-7 h-7" />
-            </div>
-            <h3 className="text-xl font-extrabold text-white">1-Click Fast Stores & Custom Domains</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Instant subdomains (`mystore.360dropship.in`) + custom GoDaddy domain mapping with 12 conversion-tested templates.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* COMPARISON TABLE (SHOPDEV VS TRADITIONAL DROPSHIPPING) */}
-      <section id="comparison" className="max-w-7xl mx-auto px-6 py-20 relative z-10 border-t border-slate-800/80">
-        <div className="text-center space-y-3 mb-16 max-w-2xl mx-auto">
-          <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-bold uppercase border border-emerald-500/30">
-            Factori Retailing Benchmark
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-black text-white">Why Merchants Switch To 360 Dropship</h2>
-        </div>
-
-        <div className="overflow-x-auto rounded-3xl border border-slate-800 bg-slate-900/80 shadow-2xl">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-950 text-slate-400 uppercase text-[11px] font-bold">
-              <tr>
-                <th className="p-5">Platform Metric</th>
-                <th className="p-5 text-slate-500">Traditional Platforms (Shopify)</th>
-                <th className="p-5 text-indigo-400 font-extrabold bg-indigo-950/40">360 Dropship (360dropship.in)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800 text-slate-200">
-              <tr>
-                <td className="p-5 font-bold text-white">Monthly Software Fees</td>
-                <td className="p-5 text-red-400 font-medium">₹3,000+ / month</td>
-                <td className="p-5 text-emerald-400 font-bold bg-indigo-950/20">₹0 / Month (Zero Charges)</td>
-              </tr>
-              <tr>
-                <td className="p-5 font-bold text-white">Platform Commission</td>
-                <td className="p-5 text-slate-400">Fixed monthly + app fees</td>
-                <td className="p-5 text-emerald-400 font-bold bg-indigo-950/20">Only 5% on Delivered Orders</td>
-              </tr>
-              <tr>
-                <td className="p-5 font-bold text-white">Wholesale Product Catalog</td>
-                <td className="p-5 text-slate-400">China suppliers (15-20 days delivery)</td>
-                <td className="p-5 text-emerald-400 font-bold bg-indigo-950/20">5,000+ Indian Factory Products (3-day delivery)</td>
-              </tr>
-              <tr>
-                <td className="p-5 font-bold text-white">Account Security & Verification</td>
-                <td className="p-5 text-slate-400">Instant bot signups</td>
-                <td className="p-5 text-emerald-400 font-bold bg-indigo-950/20">Manual Admin Verification & Approval</td>
-              </tr>
-              <tr>
-                <td className="p-5 font-bold text-white">Analytics & Tracking</td>
-                <td className="p-5 text-slate-400">Paid app plugins</td>
-                <td className="p-5 text-emerald-400 font-bold bg-indigo-950/20">Built-in Google Analytics & Meta Ads Sync</td>
-              </tr>
-            </tbody>
-          </table>
+          ))}
         </div>
       </section>
 
@@ -365,7 +477,7 @@ export default function RootHomePage() {
         <p>© 2026 360 Dropship Inc. All Rights Reserved. Factori Retailing Reference Architecture.</p>
       </footer>
 
-      {/* DROPSHIPPER-ONLY LOGIN & ONBOARDING REGISTRATION MODAL */}
+      {/* DROPSHIPPER-ONLY LOGIN & ONBOARDING REGISTRATION MODAL WITH GOOGLE LOGIN */}
       {showAuthModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-800 p-6 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
@@ -389,7 +501,30 @@ export default function RootHomePage() {
               </p>
             </div>
 
-            {/* If Form Submitted -> Show Pending Approval Notice */}
+            {/* GOOGLE SIGN IN BUTTON */}
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-sm flex items-center justify-center space-x-3 transition-all shadow-lg"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Continue with Google</span>
+              </button>
+
+              <div className="flex items-center space-x-3 text-xs text-slate-500">
+                <div className="flex-1 h-px bg-slate-800" />
+                <span className="uppercase font-bold">OR USE EMAIL</span>
+                <div className="flex-1 h-px bg-slate-800" />
+              </div>
+            </div>
+
+            {/* Form */}
             {isSubmitted ? (
               <div className="p-6 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
@@ -400,7 +535,7 @@ export default function RootHomePage() {
                   Status: PENDING FOR APPROVAL
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Thank you, <span className="font-bold text-white">{fullName}</span> ({businessName}). Our admin team is verifying your details. Your 5,000+ catalog access will be activated upon approval!
+                  Thank you, <span className="font-bold text-white">{fullName}</span> ({businessName}). Our admin team is verifying your details. Your catalog access will be activated upon approval!
                 </p>
 
                 <button
@@ -411,7 +546,6 @@ export default function RootHomePage() {
                 </button>
               </div>
             ) : (
-              /* Auth Form */
               <form onSubmit={handleAuthSubmit} className="space-y-4">
                 {authMode === 'SIGNUP' && (
                   <>
@@ -463,17 +597,6 @@ export default function RootHomePage() {
                           placeholder="Mumbai, MH"
                         />
                       </div>
-                    </div>
-
-                    <div>
-                      <label className="text-xs text-slate-400 font-bold uppercase">GST / PAN Number (Optional)</label>
-                      <input
-                        type="text"
-                        value={gstPanOptional}
-                        onChange={e => setGstPanOptional(e.target.value)}
-                        className="w-full mt-1.5 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs font-semibold focus:border-indigo-500 outline-none"
-                        placeholder="27AAAAA0000A1Z5 (Optional)"
-                      />
                     </div>
                   </>
                 )}
