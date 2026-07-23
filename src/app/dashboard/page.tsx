@@ -38,14 +38,22 @@ import {
   BarChart3,
   Percent,
   Clock,
-  UserCheck
+  UserCheck,
+  LayoutDashboard,
+  LogOut,
+  ChevronRight,
+  Menu,
+  X
 } from 'lucide-react';
 
 export default function DropshipperDashboard() {
-  // Local state for interactive demo
+  // Local state
   const [profile, setProfile] = useState(mockProfile);
   const [store, setStore] = useState(mockStore);
   const [activeTab, setActiveTab] = useState<'overview' | 'catalog' | 'customization' | 'ads' | 'analytics' | 'commission' | 'settings'>('overview');
+
+  // Mobile sidebar drawer state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // AI Generator state
   const [selectedProductForAi, setSelectedProductForAi] = useState(mockMasterCatalog[0]);
@@ -87,53 +95,20 @@ export default function DropshipperDashboard() {
 
   const isApproved = profile.approvalStatus === 'APPROVED';
 
+  // Navigation Menu Items
+  const menuItems = [
+    { id: 'overview', label: 'Overview & Orders', icon: ShoppingBag, badge: 'Live' },
+    { id: 'catalog', label: '5,000+ Product Catalog', icon: Layers, badge: '5,000+' },
+    { id: 'customization', label: 'Store Theme & Styling', icon: Palette },
+    { id: 'ads', label: 'Meta Ads Manager', icon: TrendingUp },
+    { id: 'analytics', label: 'Google Analytics & AI', icon: BarChart3 },
+    { id: 'commission', label: '5% Commission Ledger', icon: Percent, badge: '5%' },
+    { id: 'settings', label: 'Store & Domain Settings', icon: Key }
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-500/30">
-            360
-          </div>
-          <div>
-            <h1 className="font-extrabold text-lg text-white tracking-tight flex items-center gap-2">
-              360 Dropship <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Merchant OS</span>
-            </h1>
-            <p className="text-xs text-slate-400">{store.name} ({store.subdomain}.360dropship.in)</p>
-          </div>
-        </div>
-
-        {/* Right Account Status & Actions */}
-        <div className="flex items-center space-x-4">
-          {/* Approval Status Badge */}
-          <button
-            onClick={toggleApprovalStatus}
-            className={`px-4 py-2 rounded-2xl border flex items-center space-x-2.5 transition-all ${
-              isApproved 
-                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' 
-                : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
-            }`}
-          >
-            {isApproved ? <UserCheck className="w-5 h-5 text-emerald-400" /> : <Clock className="w-5 h-5 text-amber-400 animate-spin" />}
-            <div>
-              <div className="text-[10px] uppercase font-bold tracking-wider opacity-80">Account Status</div>
-              <div className="font-black text-xs text-white">{isApproved ? 'APPROVED (ACTIVE)' : 'PENDING APPROVAL'}</div>
-            </div>
-          </button>
-
-          <a
-            href={`/store/${store.subdomain}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold flex items-center space-x-2 shadow-lg shadow-indigo-600/30 transition-all"
-          >
-            <ExternalLink className="w-4 h-4" />
-            <span>View Live Store</span>
-          </a>
-        </div>
-      </header>
-
-      {/* Alert Notification Toast */}
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col lg:flex-row">
+      {/* Toast Notification */}
       {alertMsg && (
         <div className="fixed bottom-6 right-6 z-50 px-6 py-4 rounded-2xl bg-indigo-600 text-white font-semibold shadow-2xl border border-indigo-400 flex items-center space-x-3 animate-bounce">
           <Sparkles className="w-5 h-5 text-amber-300" />
@@ -141,38 +116,133 @@ export default function DropshipperDashboard() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Account Status Notice Banner */}
-        <div className={`mb-8 p-6 rounded-3xl border shadow-2xl relative overflow-hidden ${
-          isApproved 
-            ? 'bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border-indigo-500/30' 
-            : 'bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border-amber-500/40'
-        }`}>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* MOBILE TOP BAR */}
+      <div className="lg:hidden bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-black text-white text-sm">360</div>
+          <span className="font-extrabold text-sm text-white">360 Dropship</span>
+        </div>
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-slate-300 hover:text-white">
+          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      {/* 1. VERTICAL SIDEBAR MENU (LEFT COLUMN) */}
+      <aside className={`
+        fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-slate-900/90 backdrop-blur-2xl border-r border-slate-800/80 p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <div className="space-y-6">
+          {/* Brand Header */}
+          <div className="flex items-center space-x-3 border-b border-slate-800/80 pb-5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-500/30">
+              360
+            </div>
             <div>
-              <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-widest mb-1 text-indigo-400">
-                <span>Account Verification</span>
-                <span>•</span>
-                <span>{isApproved ? 'Manual Approval Completed ✅' : 'Waiting for Admin Approval ⏳'}</span>
+              <h1 className="font-extrabold text-base text-white tracking-tight">360 Dropship</h1>
+              <p className="text-[11px] text-indigo-400 font-bold">Merchant OS Panel</p>
+            </div>
+          </div>
+
+          {/* Account Status Card */}
+          <div 
+            onClick={toggleApprovalStatus}
+            className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
+              isApproved 
+                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' 
+                : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                {isApproved ? <UserCheck className="w-4 h-4 text-emerald-400" /> : <Clock className="w-4 h-4 text-amber-400 animate-spin" />}
+                <span className="text-[10px] uppercase font-bold tracking-wider">Account Status</span>
               </div>
-              <h2 className="text-xl font-extrabold text-white">Welcome back, {profile.fullName}!</h2>
-              <p className="text-sm text-slate-300 mt-1">
-                {isApproved 
-                  ? 'Your account is verified! You have full access to 5,000+ factory wholesale winning products.' 
-                  : 'Your onboarding application is under review by the admin team. Once approved, the full 5,000+ catalog will be unlocked.'}
-              </p>
+              <span className="text-[9px] font-black underline">Click to Toggle</span>
             </div>
-            
-            <div className="px-4 py-2 bg-slate-950/80 rounded-2xl border border-slate-800 text-center">
-              <div className="text-[10px] text-slate-400 uppercase font-bold">Platform Fee Model</div>
-              <div className="font-extrabold text-emerald-400 text-sm mt-0.5">5% Commission on Delivered</div>
+            <div className="font-extrabold text-xs text-white mt-1">
+              {isApproved ? 'APPROVED (ACTIVE) ✅' : 'PENDING APPROVAL ⏳'}
             </div>
+          </div>
+
+          {/* Vertical Menu Navigation */}
+          <nav className="space-y-1.5">
+            <div className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider px-3 mb-2">Navigation Menu</div>
+            {menuItems.map(item => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id as any);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full px-3.5 py-3 rounded-2xl font-bold text-xs flex items-center justify-between transition-all ${
+                    isActive 
+                      ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 scale-[1.02]' 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-indigo-400 border border-indigo-500/30'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Sidebar Footer Actions */}
+        <div className="space-y-3 pt-4 border-t border-slate-800/80">
+          <a
+            href={`/store/${store.subdomain}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3 rounded-2xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-bold text-xs border border-indigo-500/30 flex items-center justify-center space-x-2 transition-all"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>View Live Storefront</span>
+          </a>
+
+          <Link
+            href="/"
+            className="w-full py-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-semibold border border-slate-800 flex items-center justify-center space-x-2 transition-all"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout Portal</span>
+          </Link>
+        </div>
+      </aside>
+
+      {/* 2. MAIN CONTENT AREA (RIGHT COLUMN) */}
+      <main className="flex-1 p-6 lg:p-10 max-w-7xl overflow-x-hidden">
+        {/* Top Header Banner */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl font-black text-white tracking-tight">Merchant Control Dashboard</h2>
+            <p className="text-xs text-slate-400 mt-1">{store.name} • domain: <span className="text-indigo-400 font-mono">{store.subdomain}.360dropship.in</span></p>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <span className="px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>5% Delivered Commission Model</span>
+            </span>
           </div>
         </div>
 
         {/* Top Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all">
+          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
             <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
               <span>Total Store Sales</span>
               <ShoppingBag className="w-5 h-5 text-indigo-400" />
@@ -181,16 +251,16 @@ export default function DropshipperDashboard() {
             <div className="text-xs text-emerald-400 mt-2 font-medium">↑ 2 Orders (1 Delivered)</div>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all">
+          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
             <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
               <span>5% Delivered Commission</span>
               <Percent className="w-5 h-5 text-emerald-400" />
             </div>
             <div className="text-2xl font-black text-emerald-400">₹74.95</div>
-            <div className="text-xs text-slate-400 mt-2">Charged ONLY on delivered COD</div>
+            <div className="text-xs text-slate-400 mt-2">Deducted ONLY on delivered COD</div>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all">
+          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
             <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
               <span>Merchant Net Payout</span>
               <DollarSign className="w-5 h-5 text-indigo-400" />
@@ -199,7 +269,7 @@ export default function DropshipperDashboard() {
             <div className="text-xs text-emerald-400 mt-2 font-medium">Credited to Bank Daily</div>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all">
+          <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all shadow-xl">
             <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">
               <span>Catalog Unlocked</span>
               {isApproved ? <Unlock className="w-5 h-5 text-emerald-400" /> : <Lock className="w-5 h-5 text-amber-400" />}
@@ -213,40 +283,12 @@ export default function DropshipperDashboard() {
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center space-x-2 border-b border-slate-800 mb-8 overflow-x-auto pb-2">
-          {[
-            { id: 'overview', label: 'Overview & Orders', icon: ShoppingBag },
-            { id: 'catalog', label: '5,000+ Product Catalog', icon: Layers },
-            { id: 'customization', label: 'Store Theme & Styling', icon: Palette },
-            { id: 'ads', label: 'Meta Ads Manager', icon: TrendingUp },
-            { id: 'analytics', label: 'Google Analytics & AI', icon: BarChart3 },
-            { id: 'commission', label: '5% Commission Ledger', icon: Percent },
-            { id: 'settings', label: 'Store & Domain Settings', icon: Key }
-          ].map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-2.5 rounded-xl font-bold text-sm flex items-center space-x-2 transition-all whitespace-nowrap ${
-                  isActive 
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' 
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
+        {/* ACTIVE TAB CONTENT DISPLAY */}
 
         {/* TAB 1: OVERVIEW & ORDERS */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
-            <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800">
+            <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-extrabold text-white">Recent Customer Orders</h3>
@@ -363,7 +405,7 @@ export default function DropshipperDashboard() {
         {/* TAB 3: STORE THEME & STYLING */}
         {activeTab === 'customization' && (
           <div className="space-y-8">
-            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
+            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl">
               <h3 className="text-lg font-extrabold text-white mb-2">Store Theme Preset (Choose 1 of 12 Templates)</h3>
               <p className="text-xs text-slate-400 mb-6">Select a pre-built conversion-optimized layout for your storefront.</p>
 
@@ -398,7 +440,7 @@ export default function DropshipperDashboard() {
         {/* TAB 4: META ADS MANAGER */}
         {activeTab === 'ads' && (
           <div className="space-y-8">
-            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
+            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-extrabold text-white">Meta (Facebook/Instagram) Campaign Performance</h3>
@@ -450,8 +492,7 @@ export default function DropshipperDashboard() {
         {/* TAB 5: GOOGLE ANALYTICS & AI GENERATOR */}
         {activeTab === 'analytics' && (
           <div className="space-y-8">
-            {/* Google Analytics Integration */}
-            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
+            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl">
               <h3 className="text-lg font-extrabold text-white mb-2">Google Analytics Integration</h3>
               <p className="text-xs text-slate-400 mb-4">Track visitor sessions, conversion funnel, and real-time storefront traffic.</p>
               
@@ -472,8 +513,7 @@ export default function DropshipperDashboard() {
               </div>
             </div>
 
-            {/* AI Generator */}
-            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
+            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl">
               <div className="flex items-center space-x-3 mb-4">
                 <Sparkles className="w-6 h-6 text-indigo-400" />
                 <h3 className="text-lg font-extrabold text-white">Google Gemini AI Rich Landing Page Generator</h3>
@@ -527,7 +567,7 @@ export default function DropshipperDashboard() {
         {/* TAB 6: 5% COMMISSION LEDGER */}
         {activeTab === 'commission' && (
           <div className="space-y-8">
-            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800">
+            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-extrabold text-white">5% Commission Ledger (Delivered Orders Only)</h3>
@@ -573,7 +613,7 @@ export default function DropshipperDashboard() {
         {/* TAB 7: STORE & DOMAIN SETTINGS */}
         {activeTab === 'settings' && (
           <div className="space-y-8">
-            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-6 shadow-2xl">
               <div>
                 <h4 className="font-extrabold text-white text-base mb-4">Custom Domain Setup (GoDaddy CNAME)</h4>
                 <div className="space-y-3">
@@ -621,7 +661,7 @@ export default function DropshipperDashboard() {
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
