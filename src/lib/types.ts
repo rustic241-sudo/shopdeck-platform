@@ -1,17 +1,22 @@
 export type UserRole = 'ADMIN' | 'DROPSHIPPER' | 'SUPPLIER';
+export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export interface Profile {
   id: string;
   email: string;
   fullName: string;
   role: UserRole;
-  walletBalance: number;
-  walletActivated: boolean; // True after min ₹1,500+GST deposit
-  onboardingStep: number;   // 1 to 5
+  approvalStatus: ApprovalStatus; // Manual Admin Approval
+  commissionRate: number;        // 5% commission on delivered orders
+  securityDepositPaid: boolean;  // ₹1,500 advance deposit
+  onboardingStep: number;        // 1 to 4
   phoneNumber?: string;
   whatsappNumber?: string;
-  businessExperience?: string;
-  monthlyMarketingBudget?: string;
+  businessName?: string;
+  city?: string;
+  state?: string;
+  gstNumber?: string;
+  panNumber?: string;
   createdAt: string;
 }
 
@@ -27,8 +32,8 @@ export interface Store {
   logoUrl?: string;
   bannerUrl?: string;
   metaPixelId?: string;
+  googleAnalyticsId?: string;// Google Analytics integration
   razorpayKeyId?: string;
-  razorpayKeySecret?: string;
   createdAt: string;
 }
 
@@ -42,7 +47,7 @@ export interface MasterCatalogProduct {
   sku: string;
   category: string;
   inventory: number;
-  isStarter: boolean;     // Included in the free 50 starter list
+  isStarter: boolean;
   createdAt: string;
 }
 
@@ -53,7 +58,7 @@ export interface Product {
   title: string;
   description: string;   // Rich HTML landing page description
   price: number;         // Custom retail markup price
-  costPrice: number;     // Locked wholesale cost price
+  costPrice: number;     // Wholesale cost price
   images: string[];      // Custom or readymade image URLs
   categoryName: string;
   sku: string;
@@ -76,6 +81,8 @@ export interface Order {
   productPrice: number;
   wholesaleCost: number;
   totalPrice: number;
+  platformCommission: number; // 5% of totalPrice on DELIVERED orders
+  merchantNetProfit: number;   // (totalPrice - wholesaleCost - platformCommission)
   paymentMethod: 'COD' | 'PREPAID';
   status: 'PENDING' | 'VERIFIED' | 'SHIPPED' | 'DELIVERED' | 'RTO' | 'CANCELLED';
   trackingNumber?: string;
@@ -83,16 +90,16 @@ export interface Order {
   createdAt: string;
 }
 
-export interface WalletTransaction {
+export interface CommissionLedger {
   id: string;
   merchantId: string;
-  amount: number;         // Base amount credited to wallet balance
-  gstAmount: number;      // 18% GST paid
-  totalPaid: number;      // Total amount paid via payment gateway
-  type: 'RECHARGE' | 'AD_DEDUCTION' | 'ORDER_DEDUCTION' | 'AI_IMAGE_GENERATION';
-  description: string;
-  paymentId?: string;
-  status: 'SUCCESS' | 'PENDING' | 'FAILED';
+  orderId: string;
+  orderNumber: string;
+  totalOrderAmount: number;
+  commissionPercentage: number; // 5%
+  commissionCharged: number;     // 5% of order amount
+  merchantProfitPayout: number;  // Profit paid to merchant bank
+  status: 'SETTLED' | 'PENDING';
   createdAt: string;
 }
 
@@ -101,9 +108,7 @@ export interface MetaCampaignStats {
   storeId: string;
   campaignName: string;
   status: 'ACTIVE' | 'PAUSED' | 'COMPLETED';
-  rawMetaSpend: number;      // Actual spend from Meta
-  platformFee: number;       // 20% service fee charge
-  totalDeductedSpend: number;// rawMetaSpend + platformFee
+  rawMetaSpend: number;
   impressions: number;
   clicks: number;
   ctr: number;
