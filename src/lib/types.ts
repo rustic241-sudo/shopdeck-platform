@@ -17,6 +17,12 @@ export interface Profile {
   state?: string;
   gstNumber?: string;
   panNumber?: string;
+  // Merchant Bank Payout Details
+  bankAccountHolder?: string;
+  bankName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  upiId?: string;
   createdAt: string;
 }
 
