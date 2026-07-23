@@ -62,13 +62,20 @@ export default function RootHomePage() {
   const [avgSellingPrice, setAvgSellingPrice] = useState(1499);
   const [avgCostPrice, setAvgCostPrice] = useState(499);
   const [avgAdSpendPerOrder, setAvgAdSpendPerOrder] = useState(250); // Meta & Google Ad Spend per Order (CPA)
+  const [rtoPercentage, setRtoPercentage] = useState(10); // RTO Rate (e.g. 10%)
+  const [rtoCostPerOrder, setRtoCostPerOrder] = useState(120); // Reverse logistics courier charge per RTO order
 
-  // Calculations for Profit Calculator
-  const totalRevenue = dailyOrders * avgSellingPrice * 30;
-  const totalWholesaleCost = dailyOrders * avgCostPrice * 30;
-  const totalAdSpend = dailyOrders * avgAdSpendPerOrder * 30;
-  const totalPlatformCommission = totalRevenue * 0.05; // 5% commission on delivered orders
-  const estimatedNetMonthlyProfit = totalRevenue - totalWholesaleCost - totalAdSpend - totalPlatformCommission;
+  // Realistic Calculations for Profit Calculator
+  const totalOrders = dailyOrders * 30;
+  const rtoOrders = Math.round(totalOrders * (rtoPercentage / 100));
+  const deliveredOrders = totalOrders - rtoOrders;
+
+  const totalRevenue = deliveredOrders * avgSellingPrice;
+  const totalWholesaleCost = deliveredOrders * avgCostPrice;
+  const totalAdSpend = totalOrders * avgAdSpendPerOrder;
+  const totalRtoCost = rtoOrders * rtoCostPerOrder;
+  const totalPlatformCommission = totalRevenue * 0.05; // 5% commission strictly on delivered orders
+  const estimatedNetMonthlyProfit = totalRevenue - totalWholesaleCost - totalAdSpend - totalRtoCost - totalPlatformCommission;
 
   // FAQ Accordion State
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -418,16 +425,52 @@ export default function RootHomePage() {
                     className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pink-600"
                   />
                 </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
+                    <span>Expected RTO Rate (%)</span>
+                    <span className="text-amber-600 font-mono">{rtoPercentage}% RTO ({rtoOrders} Returns / Month)</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="3"
+                    max="30"
+                    step="1"
+                    value={rtoPercentage}
+                    onChange={e => setRtoPercentage(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
+                    <span>RTO Reverse Courier Charge / Return</span>
+                    <span className="text-amber-600 font-mono">₹{rtoCostPerOrder} / RTO</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="60"
+                    max="200"
+                    step="10"
+                    value={rtoCostPerOrder}
+                    onChange={e => setRtoCostPerOrder(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Profit Calculation Box */}
             <div className="p-8 rounded-3xl bg-slate-900 text-white space-y-6 shadow-xl">
-              <h3 className="text-xl font-extrabold border-b border-slate-800 pb-4">Estimated Monthly Revenue & Profit</h3>
+              <h3 className="text-xl font-extrabold border-b border-slate-800 pb-4">Estimated Monthly Revenue & Net Profit</h3>
               
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-slate-300">
-                  <span>Gross Monthly Sales (30 Days):</span>
+                  <span>Shipped Orders (30 Days):</span>
+                  <span className="font-bold text-white font-mono">{totalOrders} Orders ({deliveredOrders} Delivered / {rtoOrders} RTO)</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>Gross Sales (Delivered Orders):</span>
                   <span className="font-bold text-white font-mono">₹{totalRevenue.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
@@ -439,8 +482,12 @@ export default function RootHomePage() {
                   <span className="font-bold text-pink-400 font-mono">- ₹{totalAdSpend.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
+                  <span>RTO Reverse Courier Freight Charges:</span>
+                  <span className="font-bold text-amber-400 font-mono">- ₹{totalRtoCost.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
                   <span>360 Dropship 5% Delivered Commission:</span>
-                  <span className="font-bold text-amber-400 font-mono">- ₹{totalPlatformCommission.toLocaleString()}</span>
+                  <span className="font-bold text-amber-300 font-mono">- ₹{totalPlatformCommission.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
                   <span>Monthly Software Subscription Fee:</span>
