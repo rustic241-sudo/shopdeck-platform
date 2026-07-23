@@ -43,7 +43,7 @@ export default function SuperAdminDashboard() {
             SA
           </div>
           <div>
-            <h1 className="font-black text-lg text-white">Shopdeck Super Admin Control Panel</h1>
+            <h1 className="font-black text-lg text-white">360 Dropship Super Admin Control Panel</h1>
             <p className="text-xs text-slate-400">Master Catalog (2000+ Products), Platform Wallet Balances & Profit Accounting</p>
           </div>
         </div>
