@@ -67,13 +67,13 @@ export default function RootHomePage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center font-black text-white text-2xl shadow-lg shadow-indigo-500/30">
-              S
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-500/30">
+              360
             </div>
             <div>
-              <span className="font-black text-xl text-white tracking-tight">Shopdeck</span>
+              <span className="font-black text-xl text-white tracking-tight">360 Dropship</span>
               <span className="ml-2 text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                Factori-Style B2B OS
+                360dropship.in
               </span>
             </div>
           </div>
@@ -83,7 +83,7 @@ export default function RootHomePage() {
             <a href="#features" className="hover:text-white transition-all">Dropshipper Features</a>
             <a href="#catalog" className="hover:text-white transition-all">Wholesale Catalog</a>
             <a href="#how-it-works" className="hover:text-white transition-all">How It Works</a>
-            <a href="#comparison" className="hover:text-white transition-all">Why Shopdeck</a>
+            <a href="#comparison" className="hover:text-white transition-all">Why 360 Dropship</a>
             <a href="#pricing" className="hover:text-white transition-all">Pricing & Wallet</a>
           </nav>
 
@@ -115,7 +115,7 @@ export default function RootHomePage() {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-indigo-500/30 shadow-xl">
             <Sparkles className="w-4 h-4 text-pink-400 animate-pulse" />
             <span className="text-xs font-extrabold text-indigo-300 uppercase tracking-widest">
-              India's #1 Managed B2B Dropshipping & Wholesale Network
+              India's #1 Complete 360° Managed Dropshipping OS (360dropship.in)
             </span>
           </div>
 
@@ -178,9 +178,9 @@ export default function RootHomePage() {
       <section id="features" className="max-w-7xl mx-auto px-6 py-20 relative z-10 border-t border-slate-800/80">
         <div className="text-center space-y-3 mb-16 max-w-2xl mx-auto">
           <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-bold uppercase border border-indigo-500/30">
-            Complete Business-In-A-Box
+            Complete 360° Business-In-A-Box
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black text-white">What You Get As A Shopdeck Dropshipper</h2>
+          <h2 className="text-3xl sm:text-5xl font-black text-white">What You Get As A 360 Dropshipper</h2>
           <p className="text-slate-400 text-sm">Everything you need to launch and scale your D2C brand without inventory risk.</p>
         </div>
 
@@ -260,7 +260,7 @@ export default function RootHomePage() {
           <span className="px-3 py-1 bg-pink-500/20 text-pink-400 rounded-full text-xs font-bold uppercase border border-pink-500/30">
             Simple 4-Step Process
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black text-white">How Shopdeck Works</h2>
+          <h2 className="text-3xl sm:text-5xl font-black text-white">How 360 Dropship Works</h2>
           <p className="text-slate-400 text-sm">Launch your store and start making sales in 4 easy steps.</p>
         </div>
 
@@ -280,13 +280,13 @@ export default function RootHomePage() {
         </div>
       </section>
 
-      {/* COMPARISON TABLE SECTION (SHOPDECK VS TRADITIONAL DROPSHIPPING) */}
+      {/* COMPARISON TABLE SECTION */}
       <section id="comparison" className="max-w-7xl mx-auto px-6 py-20 relative z-10 border-t border-slate-800/80">
         <div className="text-center space-y-3 mb-16 max-w-2xl mx-auto">
           <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-bold uppercase border border-emerald-500/30">
             Why Dropshippers Choose Us
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black text-white">Traditional Dropshipping vs Shopdeck</h2>
+          <h2 className="text-3xl sm:text-5xl font-black text-white">Traditional Dropshipping vs 360 Dropship</h2>
         </div>
 
         <div className="overflow-x-auto rounded-3xl border border-slate-800 bg-slate-900/80">
@@ -295,7 +295,7 @@ export default function RootHomePage() {
               <tr>
                 <th className="p-5">Feature</th>
                 <th className="p-5 text-slate-500">Traditional Dropshipping (Shopify)</th>
-                <th className="p-5 text-indigo-400 font-extrabold bg-indigo-950/40">Shopdeck Managed Platform</th>
+                <th className="p-5 text-indigo-400 font-extrabold bg-indigo-950/40">360 Dropship Managed Platform</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800 text-slate-200">
@@ -418,10 +418,10 @@ export default function RootHomePage() {
       {/* FOOTER */}
       <footer className="border-t border-slate-800/80 bg-slate-950 py-12 px-6 text-center text-xs text-slate-500 space-y-4">
         <div className="flex items-center justify-center space-x-2">
-          <div className="w-6 h-6 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">S</div>
-          <span className="font-bold text-slate-300 text-sm">Shopdeck Managed Dropshipping OS</span>
+          <div className="w-6 h-6 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">360</div>
+          <span className="font-bold text-slate-300 text-sm">360 Dropship Managed Platform (360dropship.in)</span>
         </div>
-        <p>© 2026 Shopdeck Inc. All Rights Reserved. Factori-Style B2B E-Commerce Platform.</p>
+        <p>© 2026 360 Dropship Inc. All Rights Reserved. Factori-Style B2B E-Commerce Platform.</p>
       </footer>
 
       {/* AUTHENTICATION MODAL (LOGIN / SIGNUP) */}
@@ -440,7 +440,7 @@ export default function RootHomePage() {
                 <User className="w-6 h-6" />
               </div>
               <h3 className="text-2xl font-black text-white">
-                {authMode === 'LOGIN' ? 'Welcome Back to Shopdeck' : 'Create Free Merchant Account'}
+                {authMode === 'LOGIN' ? 'Welcome Back to 360 Dropship' : 'Create Free 360 Dropshipper Account'}
               </h3>
               <p className="text-xs text-slate-400">Select your account type to proceed to dashboard.</p>
             </div>
@@ -480,7 +480,7 @@ export default function RootHomePage() {
                   value={authEmail}
                   onChange={e => setAuthEmail(e.target.value)}
                   className="w-full mt-1.5 px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm font-semibold focus:border-indigo-500 outline-none"
-                  placeholder="merchant@shopdeck.in"
+                  placeholder="merchant@360dropship.in"
                 />
               </div>
 
